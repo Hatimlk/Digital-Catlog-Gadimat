@@ -147,6 +147,10 @@ h3 {
   font-weight: 800;
 }
 
+h3 {
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+}
+
 h1 {
   font-size: clamp(3rem, 6vw, 5.8rem);
   max-width: 10ch;
@@ -174,6 +178,12 @@ button {
   font: inherit;
   border: none;
   cursor: pointer;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
 }
 
 .primary-btn,
@@ -376,12 +386,28 @@ button {
   color: var(--muted);
 }
 
+.brand-card__label {
+  margin-top: 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .brand-card.is-active,
 .type-pill.is-active,
 .product-card.is-active {
-  border-color: rgba(44, 81, 143, 0.42);
+  border-color: rgba(44, 81, 143, 0.55);
   background: var(--panel-strong);
-  box-shadow: 0 18px 30px rgba(44, 81, 143, 0.14);
+  box-shadow: 0 0 0 3px rgba(44, 81, 143, 0.14), 0 18px 30px rgba(44, 81, 143, 0.14);
+}
+
+.type-pill.is-active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
 }
 
 .type-switch {
@@ -793,6 +819,14 @@ button {
   flex-wrap: wrap;
 }
 
+.detail-cta {
+  display: block;
+  width: 100%;
+  margin-top: 18px;
+  text-align: center;
+  font-size: 0.92rem;
+}
+
 @media (hover: hover) {
   .primary-btn:hover,
   .ghost-btn:hover,
@@ -870,7 +904,7 @@ button {
   }
 
   .detail-page__meta {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .brand-grid {

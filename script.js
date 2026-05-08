@@ -12,7 +12,7 @@ const brandLogos = {
 const catalogData = {
   brands: [
     { name: "AGT", label: "Design contemporain" },
-    { name: "CAMSAN", label: "Textures equilibrees" },
+    { name: "CAMSAN", label: "Textures équilibrées" },
     { name: "VENNI", label: "Palette expressive" },
     { name: "YILDIZ", label: "Finitions architecturales" },
     { name: "KRONOSPAN", label: "Surface technique" },
@@ -20,7 +20,7 @@ const catalogData = {
   types: {
     MDF: {
       description:
-        "Des surfaces chaleureuses et structurees, parfaites pour le mobilier interieur, le dressing et les amenagements sur mesure.",
+        "Des surfaces chaleureuses et structurées, parfaites pour le mobilier intérieur, le dressing et les aménagements sur mesure.",
       features: [
         "Texture naturelle et decorative",
         "Grande polyvalence pour l'agencement",
@@ -33,10 +33,10 @@ const catalogData = {
     },
     "HIGH GLOSS": {
       description:
-        "Une finition tres lumineuse et reflechissante, ideale pour des cuisines modernes et des espaces haut de gamme.",
+        "Une finition très lumineuse et réfléchissante, idéale pour des cuisines modernes et des espaces haut de gamme.",
       features: [
         "Effet miroir premium",
-        "Sens de la lumiere et profondeur visuelle",
+        "Sens de la lumière et profondeur visuelle",
         "Parfait pour cuisines et meubles design",
       ],
       materialLabel: "Reflet brillant",
@@ -46,10 +46,10 @@ const catalogData = {
     },
     SUPRAMAT: {
       description:
-        "Une matiere ultra mate et tactile qui offre un rendu sobre, contemporain et tres architectural.",
+        "Une matière ultra mate et tactile qui offre un rendu sobre, contemporain et très architectural.",
       features: [
         "Toucher soyeux et moderne",
-        "Esthetique minimaliste premium",
+        "Esthétique minimaliste premium",
         "Excellent pour concepts boutiques et mobilier chic",
       ],
       materialLabel: "Ultra mat",
@@ -72,7 +72,7 @@ const catalogData = {
       {
         brand: "CAMSAN",
         name: "MDF Chene Lin",
-        description: "Une interpretation claire du chene pour les interieurs lumineux.",
+        description: "Une interprétation claire du chêne pour les intérieurs lumineux.",
         aspect: "Chene naturel",
         usage: "Placard, tete de lit, meuble TV",
         colors: ["#876247", "#cfac87", "#efe2c9"],
@@ -81,7 +81,7 @@ const catalogData = {
       {
         brand: "KRONOSPAN",
         name: "MDF Sable Urbain",
-        description: "Une teinte sable boisee pour projets contemporains et doux.",
+        description: "Une teinte sable boisée pour projets contemporains et doux.",
         aspect: "Bois uni",
         usage: "Salle d'exposition, accueil, rangement",
         colors: ["#70513f", "#b98f71", "#dfc3a8"],
@@ -90,7 +90,7 @@ const catalogData = {
       {
         brand: "YILDIZ",
         name: "MDF Dune Lin",
-        description: "Une finition claire et elegante pour des amenagements doux et lumineux.",
+        description: "Une finition claire et élégante pour des aménagements doux et lumineux.",
         aspect: "Bois structure",
         usage: "Placard, panneau decoratif, meuble mural",
         colors: ["#8a6d56", "#ccb08c", "#efe1cf"],
@@ -101,7 +101,7 @@ const catalogData = {
       {
         brand: "CAMSAN",
         name: "Blanc Perle Brillant",
-        description: "Un blanc brillant miroir pour cuisines et murs decoratifs haut de gamme.",
+        description: "Un blanc brillant miroir pour cuisines et murs décoratifs haut de gamme.",
         aspect: "Laque brillante",
         usage: "Cuisine, salle d'exposition, commerce",
         colors: ["#d7d4cf", "#f3efe9", "#ffffff"],
@@ -110,7 +110,7 @@ const catalogData = {
       {
         brand: "VENNI",
         name: "Taupe Champagne Brillant",
-        description: "Une nuance elegante avec de beaux reflets pour ameublement moderne.",
+        description: "Une nuance élégante avec de beaux reflets pour ameublement moderne.",
         aspect: "Reflet soyeux",
         usage: "Buffet, dressing, comptoir",
         colors: ["#7f7066", "#c8b5a5", "#f2e2d5"],
@@ -148,7 +148,7 @@ const catalogData = {
       {
         brand: "KRONOSPAN",
         name: "Supramat Noir Braise",
-        description: "Une presence intense, mate et minimaliste pour projets affirmes.",
+        description: "Une présence intense, mate et minimaliste pour projets affirmés.",
         aspect: "Noir ultra mat",
         usage: "Commerce de luxe, cuisine, habillage mural",
         colors: ["#1f1c1a", "#4b4440", "#8b827c"],
@@ -217,9 +217,9 @@ const agtAssetCatalog = {
   ],
   SUPRAMAT: [
     { code: "3009", label: "GALAXY NOIR", surfaceFile: "3009-GALAXY BLACK.png", previewFile: "3009-IMG.png" },
-    { code: "3011", label: "3011", surfaceFile: "3011.png", previewFile: "3011-IMG.png" },
-    { code: "3012", label: "3012", surfaceFile: "3012.png", previewFile: "3012-IMG.png" },
-    { code: "3014", label: "3014", surfaceFile: "3014.png", previewFile: "3014-IMG.png" },
+    { code: "3011", label: "TAUPE SABLE", surfaceFile: "3011.png", previewFile: "3011-IMG.png" },
+    { code: "3012", label: "GRIS PERLE", surfaceFile: "3012.png", previewFile: "3012-IMG.png" },
+    { code: "3014", label: "BLANC CASSÉ", surfaceFile: "3014.png", previewFile: "3014-IMG.png" },
     { code: "3017", label: "GRIS INTEMPOREL", surfaceFile: "3017-TIMELESS GREY.jpg", previewFile: "3017-IMG.webp" },
     { code: "3031", label: "MARBRE NOIR TOROS", surfaceFile: "3031-TOROS BLACK MARBLE.png", previewFile: "3031-IMG.png" },
   ],
@@ -391,15 +391,6 @@ function App() {
   const detailProduct = findProductByRoute(detailRoute);
   const detailTypeData = detailRoute ? catalogData.types[detailRoute.type] : null;
   const previewSurfaceStyle = activeProduct && activeProduct.surfaceImage
-    ? {
-        backgroundImage: `url("${activeProduct.surfaceImage}")`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }
-    : activeProduct
-      ? { background: activeProduct.background }
-      : { background: typeData.materialBackground };
-  const previewCabinetStyle = activeProduct && activeProduct.surfaceImage
     ? {
         backgroundImage: `url("${activeProduct.surfaceImage}")`,
         backgroundSize: "cover",
@@ -583,7 +574,7 @@ function App() {
             type: "button",
             onClick: closeProductPage,
           },
-          "Retour au catalogue"
+          "← Retour au catalogue"
         ),
         h(
           "div",
@@ -596,7 +587,7 @@ function App() {
             h(
               "p",
               { className: "detail-page__text" },
-              `Reference ${getProductReference(detailProduct)} generee depuis Assets/${detailRoute.brand}/${detailRoute.type}.`
+              detailProduct.description || detailTypeData.description
             ),
             h(
               "div",
@@ -622,18 +613,19 @@ function App() {
           h(
             "div",
             { className: "detail-card reveal" },
-            h("h2", null, "Decor"),
+            h("h2", null, "Décor"),
             detailProduct.surfaceImage
               ? h("img", {
                   className: "detail-card__image detail-card__image--surface",
                   src: detailProduct.surfaceImage,
                   alt: `${detailProduct.name} surface`,
+                  loading: "lazy",
                 })
               : h("div", { className: "detail-card__fallback", style: detailSurfaceStyle }),
             h(
               "p",
               null,
-              "Image principale chargee depuis le fichier Code Produit du type AGT selectionne."
+              `Surface décorative · Référence ${getProductReference(detailProduct)}`
             )
           ),
           h(
@@ -645,12 +637,13 @@ function App() {
                   className: "detail-card__image",
                   src: detailProduct.previewImage,
                   alt: `${detailProduct.name} application`,
+                  loading: "lazy",
                 })
               : h("div", { className: "detail-card__fallback", style: detailSurfaceStyle }),
             h(
               "p",
               null,
-              "Image showroom associee a la meme reference produit."
+              "Mise en situation en conditions réelles d'aménagement."
             )
           )
         )
@@ -682,7 +675,7 @@ function App() {
               className: "brand-slider__nav brand-slider__nav--prev",
               type: "button",
               onClick: () => scrollBrandSlider(-1),
-              "aria-label": "Marques precedentes",
+              "aria-label": "Marques précédentes",
             },
             "‹"
           ),
@@ -703,7 +696,8 @@ function App() {
                   className: "brand-card__logo",
                   src: brandLogos[brand.name],
                   alt: `Logo ${brand.name}`,
-                })
+                }),
+                h("span", { className: "brand-card__label" }, brand.label)
               )
             )
           ),
@@ -751,7 +745,7 @@ function App() {
           h(
             "div",
             { className: "type-showcase__panel" },
-            h("p", { className: "type-showcase__label" }, "Type selectionne"),
+            h("p", { className: "type-showcase__label" }, "Type sélectionné"),
             h("h3", null, activeType),
             h("p", { className: "type-showcase__size" }, productSize),
             h("p", { id: "type-description" }, typeData.description),
@@ -816,6 +810,7 @@ function App() {
                             className: "product-card__thumb",
                             src: product.surfaceImage,
                             alt: `${product.name} surface`,
+                            loading: "lazy",
                           })
                         )
                       : null,
@@ -848,7 +843,7 @@ function App() {
                     h(
                       "p",
                       null,
-                      "Cette marque est limitee a ses types de produits associes, et aucune carte produit n'est encore chargee pour cette selection."
+                      "Cette marque est limitée à ses types de produits associés pour cette sélection."
                     )
                   ),
                 ])
@@ -869,6 +864,7 @@ function App() {
                         className: "product-preview__hero-image",
                         src: activeProduct.previewImage,
                         alt: `${activeProduct.name} showroom`,
+                        loading: "lazy",
                       })
                     : h(
                         "div",
@@ -876,7 +872,7 @@ function App() {
                         h("div", { className: "preview-room__wall" }),
                         h("div", {
                           className: "preview-room__cabinet",
-                          style: previewCabinetStyle,
+                          style: previewSurfaceStyle,
                         }),
                         h("div", { className: "preview-room__shelf" })
                       )
@@ -894,7 +890,7 @@ function App() {
                       h(
                         "span",
                         { className: "product-preview__reference" },
-                        activeProduct.code || activeProduct.usage
+                        getProductReference(activeProduct)
                       ),
                       h("span", {
                         className: "product-preview__color-dot",
@@ -916,7 +912,7 @@ function App() {
                         onClick: handlePrevProduct,
                         disabled: products.length < 2,
                       },
-                      "Precedent"
+                      "Précédent"
                     ),
                     h(
                       "span",
@@ -946,7 +942,7 @@ function App() {
                   h(
                     "div",
                     { className: "product-meta" },
-                    h("div", null, h("span", null, "Epaisseur"), h("strong", null, "18 mm")),
+                    h("div", null, h("span", null, "Épaisseur"), h("strong", null, "18 mm")),
                     h(
                       "div",
                       null,
@@ -956,9 +952,18 @@ function App() {
                     h(
                       "div",
                       null,
-                      h("span", null, "Reference"),
-                      h("strong", null, activeProduct.code || activeProduct.usage)
+                      h("span", null, "Référence"),
+                      h("strong", null, getProductReference(activeProduct))
                     )
+                  ),
+                  h(
+                    "button",
+                    {
+                      className: "primary-btn detail-cta",
+                      type: "button",
+                      onClick: () => openProductPage(activeProduct, safeProductIndex),
+                    },
+                    "Voir le détail →"
                   )
                 )
               )
@@ -970,7 +975,7 @@ function App() {
                 h(
                   "p",
                   { id: "preview-description" },
-                  "Selectionnez une combinaison marque/type contenant des produits pour afficher la carte showroom."
+                  "Sélectionnez un produit dans la liste pour afficher l'aperçu."
                 )
               )
         )
