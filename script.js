@@ -463,6 +463,13 @@ function App() {
   }, [activeBrand, activeType, availableTypes]);
 
   useEffect(() => {
+    document.querySelectorAll(".reveal:not(.is-visible)").forEach((el) => {
+      el.style.transitionDelay = "0ms";
+      el.classList.add("is-visible");
+    });
+  }, [safeProductIndex]);
+
+  useEffect(() => {
     if (!activeProduct) return;
     preloadImage(activeProduct.surfaceImage);
     preloadImage(activeProduct.previewImage);
