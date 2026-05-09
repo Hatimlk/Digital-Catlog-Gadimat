@@ -689,24 +689,6 @@ function App() {
           h(
             "div",
             { className: "detail-card reveal" },
-            h("h2", null, "Décor"),
-            detailProduct.surfaceImage
-              ? h("img", {
-                  className: "detail-card__image detail-card__image--surface",
-                  src: detailProduct.surfaceImage,
-                  alt: `${detailProduct.name} surface`,
-                  loading: "lazy",
-                })
-              : h("div", { className: "detail-card__fallback", style: detailSurfaceStyle }),
-            h(
-              "p",
-              null,
-              `Surface décorative · Référence ${getProductReference(detailProduct)}`
-            )
-          ),
-          h(
-            "div",
-            { className: "detail-card reveal" },
             h("h2", null, "Mise en situation"),
             detailProduct.previewImage
               ? h("img", {
