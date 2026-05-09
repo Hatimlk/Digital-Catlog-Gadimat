@@ -522,6 +522,15 @@ function App() {
   function handleProductSelect(index) {
     if (window.innerWidth <= 720) {
       shouldScrollToShowroomRef.current = true;
+
+      if (index === safeProductIndex) {
+        window.requestAnimationFrame(() => {
+          showroomCardRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        });
+      }
     }
 
     setActiveProductIndex(index);
