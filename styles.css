@@ -335,6 +335,11 @@ button {
     rgba(246, 249, 255, 0.96);
 }
 
+.detail-card--showroom .detail-card__image,
+.detail-card--showroom .detail-card__fallback {
+  max-width: 540px;
+}
+
 .detail-card p {
   margin-bottom: 0;
   color: var(--muted);

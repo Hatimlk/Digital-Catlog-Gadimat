@@ -688,7 +688,7 @@ function App() {
           { className: "detail-page__grid" },
           h(
             "div",
-            { className: "detail-card reveal" },
+            { className: "detail-card detail-card--showroom reveal" },
             h("h2", null, "Mise en situation"),
             detailProduct.previewImage
               ? h("img", {
