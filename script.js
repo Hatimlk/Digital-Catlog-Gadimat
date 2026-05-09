@@ -169,7 +169,7 @@ const brandTypeMap = {
 const agtAssetCatalog = {
   MDF: [
     { code: "L003", label: "NOIR", surfaceFile: "L003-BLACK.png", previewFile: "L003-IMG.png" },
-    { code: "L004", label: "ANTHRACITE", surfaceFile: "L004-ANTHRACITE.png" },
+    { code: "L004", label: "ANTHRACITE", surfaceFile: "L004-ANTHRACITE.png", previewFile: "L004-IMG.png" },
     { code: "L018", label: "LARA FONCE", surfaceFile: "L018-DARK LARA.png", previewFile: "L018-IMG.png" },
     { code: "L019", label: "TECK", surfaceFile: "L019-TEAK.png", previewFile: "L019-IMG.png" },
     { code: "L020", label: "TABAC", surfaceFile: "L020-TOBACCO.png", previewFile: "L020-IMG.png" },
