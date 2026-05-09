@@ -98,9 +98,10 @@ body::before {
 
 .brand-masthead__identity {
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 20px;
   width: 100%;
 }
 
@@ -115,18 +116,32 @@ body::before {
 }
 
 .brand-masthead__portfolio {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  min-height: 48px;
-  padding: 10px 16px;
-  border-left: 1px solid rgba(44, 81, 143, 0.18);
-  color: #243754;
-  font-size: clamp(0.78rem, 1.2vw, 1rem);
+  justify-content: center;
+  gap: 14px;
+  min-height: 0;
+  padding: 0;
+  border-left: 0;
+  color: var(--accent);
+  font-size: clamp(0.82rem, 1.25vw, 1.04rem);
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.2em;
   line-height: 1.2;
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+.brand-masthead__portfolio::before,
+.brand-masthead__portfolio::after {
+  content: "";
+  width: clamp(32px, 7vw, 72px);
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(44, 81, 143, 0.34));
+}
+
+.brand-masthead__portfolio::after {
+  background: linear-gradient(90deg, rgba(44, 81, 143, 0.34), transparent);
 }
 
 .brand-masthead__eyebrow {
@@ -957,7 +972,7 @@ button {
   }
 
   .brand-masthead__identity {
-    gap: 14px;
+    gap: 18px;
   }
 
   .brand-grid {
@@ -982,21 +997,14 @@ button {
   }
 
   .brand-masthead__identity {
-    flex-direction: column;
-    gap: 12px;
+    gap: 18px;
     justify-content: center;
   }
 
   .brand-masthead__portfolio {
-    min-height: 0;
-    padding: 8px 14px;
-    border-left: 0;
-    border-radius: 999px;
-    background: rgba(44, 81, 143, 0.08);
-    color: var(--accent);
-    font-size: 0.74rem;
-    letter-spacing: 0.14em;
-    box-shadow: inset 0 0 0 1px rgba(44, 81, 143, 0.08);
+    gap: 10px;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
   }
 
   .section {
@@ -1315,9 +1323,14 @@ button {
   }
 
   .brand-masthead__portfolio {
-    padding: 7px 12px;
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
+    gap: 8px;
+    font-size: 0.64rem;
+    letter-spacing: 0.13em;
+  }
+
+  .brand-masthead__portfolio::before,
+  .brand-masthead__portfolio::after {
+    width: 28px;
   }
 
   .section-heading h2 {
