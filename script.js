@@ -386,6 +386,7 @@ function App() {
   const showroomCardRef = useRef(null);
   const shouldScrollToShowroomRef = useRef(false);
   const brandSliderRef = useRef(null);
+  const previewTouchRef = useRef(null);
 
   const availableTypes = getAvailableTypesForBrand(activeBrand);
   const typeData = catalogData.types[activeType];
@@ -568,6 +569,50 @@ function App() {
     setActiveProductIndex((currentIndex) =>
       currentIndex === products.length - 1 ? 0 : currentIndex + 1
     );
+  }
+
+  function handlePreviewTouchStart(event) {
+    if (window.innerWidth > 720 || event.touches.length !== 1) {
+      return;
+    }
+
+    const touch = event.touches[0];
+    previewTouchRef.current = {
+      x: touch.clientX,
+      y: touch.clientY,
+    };
+  }
+
+  function handlePreviewTouchEnd(event) {
+    const start = previewTouchRef.current;
+    previewTouchRef.current = null;
+
+    if (!start || window.innerWidth > 720 || products.length < 2) {
+      return;
+    }
+
+    const touch = event.changedTouches[0];
+    if (!touch) {
+      return;
+    }
+
+    const deltaX = touch.clientX - start.x;
+    const deltaY = touch.clientY - start.y;
+    const isHorizontalSwipe = Math.abs(deltaX) >= 50 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2;
+
+    if (!isHorizontalSwipe) {
+      return;
+    }
+
+    if (deltaX < 0) {
+      handleNextProduct();
+    } else {
+      handlePrevProduct();
+    }
+  }
+
+  function handlePreviewTouchCancel() {
+    previewTouchRef.current = null;
   }
 
   function openProductPage(product, index) {
@@ -882,7 +927,13 @@ function App() {
           activeProduct
               ? h(
                 "aside",
-                { className: "product-preview reveal", ref: showroomCardRef },
+                {
+                  className: "product-preview reveal",
+                  ref: showroomCardRef,
+                  onTouchStart: handlePreviewTouchStart,
+                  onTouchEnd: handlePreviewTouchEnd,
+                  onTouchCancel: handlePreviewTouchCancel,
+                },
                 h(
                   "div",
                   {
