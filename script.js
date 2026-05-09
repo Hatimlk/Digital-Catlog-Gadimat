@@ -217,27 +217,38 @@ const agtAssetCatalog = {
   ],
   SUPRAMAT: [
     { code: "3009", label: "GALAXY NOIR", surfaceFile: "3009-GALAXY BLACK.png", previewFile: "3009-IMG.png" },
-    { code: "3011", label: "TAUPE SABLE", surfaceFile: "3011.png", previewFile: "3011-IMG.png" },
-    { code: "3012", label: "GRIS PERLE", surfaceFile: "3012.png", previewFile: "3012-IMG.png" },
-    { code: "3014", label: "BLANC CASSÉ", surfaceFile: "3014.png", previewFile: "3014-IMG.png" },
+    { code: "3011", label: "LONDON BLUE", surfaceFile: "3011-LONDON BLUE.png", previewFile: "3011-IMG.png" },
+    { code: "3012", label: "SNOW WHITE", surfaceFile: "3012-SNOW WHITE.png", previewFile: "3012-IMG.png" },
+    { code: "3014", label: "CLOUD GREY", surfaceFile: "3014-CLOUD GREY.png", previewFile: "3014-IMG.png" },
     { code: "3017", label: "GRIS INTEMPOREL", surfaceFile: "3017-TIMELESS GREY.jpg", previewFile: "3017-IMG.webp" },
     { code: "3031", label: "MARBRE NOIR TOROS", surfaceFile: "3031-TOROS BLACK MARBLE.png", previewFile: "3031-IMG.png" },
   ],
 };
+
+function getAssetLabelFromFilename(filename, code, fallbackLabel) {
+  if (!filename) {
+    return fallbackLabel || code;
+  }
+
+  const baseName = filename.replace(/\.[^.]+$/, "");
+  const prefix = `${code}-`;
+  return baseName.startsWith(prefix) ? baseName.slice(prefix.length) : fallbackLabel || baseName;
+}
 
 function makeAgtProduct(type, entry) {
   const item = typeof entry === "string" ? { code: entry, label: entry } : entry;
   const codeFolder = `Assets/AGT/${type}/Code Produit`;
   const showroomFolder = `Assets/AGT/${type}/Showroom`;
   const typeData = catalogData.types[type];
+  const assetLabel = getAssetLabelFromFilename(item.surfaceFile, item.code, item.label);
 
   return {
     brand: "AGT",
     code: item.code,
-    name: `${item.code} - ${item.label}`,
-    description: item.label || "",
+    name: `${item.code} - ${assetLabel}`,
+    description: assetLabel || "",
     aspect: typeData.materialLabel,
-    usage: item.label || "Reference AGT",
+    usage: assetLabel || "Reference AGT",
     colors: [],
     background: typeData.materialBackground,
     surfaceImage: `${codeFolder}/${item.surfaceFile}`,
@@ -295,11 +306,16 @@ function renderGadimatHeader(title, text) {
     h(
       "div",
       { className: `brand-masthead__main ${hasCopy ? "" : "brand-masthead__main--logo-only"}`.trim() },
-      h("img", {
-        className: "brand-masthead__logo",
-        src: gadimatLogo,
-        alt: "Logo Gadimat",
-      }),
+      h(
+        "div",
+        { className: "brand-masthead__identity" },
+        h("img", {
+          className: "brand-masthead__logo",
+          src: gadimatLogo,
+          alt: "Logo Gadimat",
+        }),
+        h("span", { className: "brand-masthead__portfolio" }, "PORTFOLIO STOCK")
+      ),
       hasCopy
         ? h(
             "div",
@@ -947,7 +963,18 @@ function App() {
                   h(
                     "div",
                     { className: "product-preview__header" },
-                    h("p", { className: "product-preview__brand" }, activeProduct.brand),
+                    h(
+                      "div",
+                      { className: "product-preview__brand-wrap" },
+                      brandLogos[activeProduct.brand]
+                        ? h("img", {
+                            className: "product-preview__brand-logo",
+                            src: brandLogos[activeProduct.brand],
+                            alt: `Logo ${activeProduct.brand}`,
+                            loading: "lazy",
+                          })
+                        : h("p", { className: "product-preview__brand" }, activeProduct.brand)
+                    ),
                     h(
                       "div",
                       { className: "product-preview__summary" },
