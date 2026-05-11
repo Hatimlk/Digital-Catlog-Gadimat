@@ -1315,8 +1315,7 @@ button {
   }
 
   .product-preview__controls {
-    gap: 10px;
-    margin: 16px 0;
+    display: none;
   }
 
   .product-preview__nav {
