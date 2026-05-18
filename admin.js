@@ -478,85 +478,196 @@ window.toggleHideProduct = async (id, currentStatus) => {
 // --- PDF EXPORT ---
 document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
 
-function exportToPDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+async function exportToPDF() {
+    const exportBtn = document.getElementById('exportPdfBtn');
+    exportBtn.disabled = true;
+    exportBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-gray-400"></i> Génération...';
 
     const filteredData = currentBrandFilter === 'ALL'
         ? products
         : products.filter(p => p.brand && p.brand.toUpperCase() === currentBrandFilter);
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+    try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+        const pageW = doc.internal.pageSize.getWidth();   // 297
+        const pageH = doc.internal.pageSize.getHeight();  // 210
 
-    // Header bar
-    doc.setFillColor(15, 23, 42); // slate-900
-    doc.rect(0, 0, pageWidth, 22, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text('GADIMAT', 14, 14);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(148, 163, 184); // slate-400
-    doc.text('Catalogue des produits', 14, 19);
-    doc.setTextColor(255, 255, 255);
-    doc.text(`Exporté le ${today}`, pageWidth - 14, 14, { align: 'right' });
+        const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+        const filterLabel = currentBrandFilter === 'ALL' ? 'Toutes les marques' : currentBrandFilter;
 
-    const filterLabel = currentBrandFilter === 'ALL' ? 'Toutes les marques' : currentBrandFilter;
-    doc.setFontSize(8);
-    doc.setTextColor(148, 163, 184);
-    doc.text(`Filtre: ${filterLabel} — ${filteredData.length} produit(s)`, pageWidth - 14, 19, { align: 'right' });
+        // Layout constants
+        const margin = 12;
+        const cols = 4;
+        const gap = 4;
+        const headerH = 22;
+        const startY = headerH + 6;
+        const cardW = (pageW - 2 * margin - (cols - 1) * gap) / cols;
+        const imgH = 46;
+        const infoH = 34;
+        const cardH = imgH + infoH;
+        const rowGap = 5;
+        const rowsPerPage = 2;
 
-    const tableRows = filteredData.map(p => [
-        p.brand || '',
-        p.type || '',
-        p.code || '',
-        p.label || '',
-        p.epaisseur || '—',
-        p.is_hidden ? 'Masqué' : 'Disponible',
-    ]);
-
-    doc.autoTable({
-        startY: 28,
-        head: [['Marque', 'Type', 'Code', 'Label', 'Épaisseur', 'Statut']],
-        body: tableRows,
-        theme: 'grid',
-        headStyles: {
-            fillColor: [37, 99, 235], // blue-600
-            textColor: 255,
-            fontStyle: 'bold',
-            fontSize: 9,
-        },
-        bodyStyles: { fontSize: 8.5, textColor: [31, 41, 55] },
-        alternateRowStyles: { fillColor: [248, 250, 252] },
-        columnStyles: {
-            0: { fontStyle: 'bold' },
-            5: {
-                halign: 'center',
-                fontStyle: 'bold',
-            },
-        },
-        didParseCell(data) {
-            if (data.section === 'body' && data.column.index === 5) {
-                data.cell.styles.textColor = data.cell.raw === 'Masqué' ? [185, 28, 28] : [21, 128, 61];
+        // Pre-fetch all images in parallel
+        const imageCache = {};
+        await Promise.all(filteredData.map(async (p) => {
+            if (p.surface_image_url) {
+                imageCache[p.id] = await fetchImageAsDataUrl(p.surface_image_url);
             }
-        },
-        margin: { left: 14, right: 14 },
-    });
+        }));
 
-    // Page numbers
-    const pageCount = doc.internal.getNumberOfPages();
-    for (let i = 1; i <= pageCount; i++) {
-        doc.setPage(i);
-        doc.setFontSize(8);
-        doc.setTextColor(156, 163, 175);
-        doc.text(`Page ${i} / ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 6, { align: 'center' });
+        function drawHeader() {
+            doc.setFillColor(15, 23, 42);
+            doc.rect(0, 0, pageW, headerH, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.text('GADIMAT', margin, 13);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(148, 163, 184);
+            doc.text('Catalogue produits', margin, 18.5);
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(8);
+            doc.text(today, pageW - margin, 13, { align: 'right' });
+            doc.setTextColor(148, 163, 184);
+            doc.text(`${filterLabel} — ${filteredData.length} produit(s)`, pageW - margin, 18.5, { align: 'right' });
+        }
+
+        function drawCard(product, x, y) {
+            // Card background + border
+            doc.setFillColor(255, 255, 255);
+            doc.setDrawColor(229, 231, 235);
+            doc.setLineWidth(0.3);
+            doc.roundedRect(x, y, cardW, cardH, 2, 2, 'FD');
+
+            // Image
+            const imgData = imageCache[product.id];
+            if (imgData) {
+                try {
+                    doc.addImage(imgData, getImageFormat(imgData), x, y, cardW, imgH);
+                    // Redraw border on top of image
+                    doc.setDrawColor(229, 231, 235);
+                    doc.setLineWidth(0.3);
+                    doc.roundedRect(x, y, cardW, cardH, 2, 2, 'S');
+                } catch (_) {
+                    drawPlaceholder(x, y);
+                }
+            } else {
+                drawPlaceholder(x, y);
+            }
+
+            // Info area
+            let ty = y + imgH + 4;
+
+            doc.setFontSize(6.5);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(37, 99, 235);
+            doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+            ty += 4.5;
+
+            doc.setFontSize(9);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(17, 24, 39);
+            doc.text(product.code || '', x + 3, ty);
+            ty += 4.5;
+
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(75, 85, 99);
+            const labelLine = doc.splitTextToSize(product.label || '', cardW - 6)[0];
+            doc.text(labelLine, x + 3, ty);
+            ty += 4;
+
+            doc.setFontSize(6.5);
+            doc.setTextColor(107, 114, 128);
+            const meta = [product.type, product.epaisseur].filter(Boolean).join(' · ');
+            doc.text(meta, x + 3, ty);
+            ty += 4.5;
+
+            // Status badge
+            const hidden = product.is_hidden;
+            doc.setFillColor(...(hidden ? [254, 226, 226] : [220, 252, 231]));
+            doc.roundedRect(x + 3, ty - 3, 20, 4.5, 1, 1, 'F');
+            doc.setFontSize(6);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(...(hidden ? [153, 27, 27] : [21, 128, 61]));
+            doc.text(hidden ? 'Masqué' : 'Disponible', x + 3 + 10, ty + 0.2, { align: 'center' });
+        }
+
+        function drawPlaceholder(x, y) {
+            doc.setFillColor(243, 244, 246);
+            doc.rect(x, y, cardW, imgH, 'F');
+            doc.setTextColor(156, 163, 175);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text('—', x + cardW / 2, y + imgH / 2, { align: 'center' });
+        }
+
+        // Render all cards across pages
+        let currentPage = 0;
+        filteredData.forEach((product, i) => {
+            const pageIndex = Math.floor(i / (cols * rowsPerPage));
+            const posInPage = i % (cols * rowsPerPage);
+            const col = posInPage % cols;
+            const row = Math.floor(posInPage / cols);
+
+            if (pageIndex > currentPage) {
+                doc.addPage();
+                currentPage = pageIndex;
+                drawHeader();
+            } else if (i === 0) {
+                drawHeader();
+            }
+
+            const x = margin + col * (cardW + gap);
+            const y = startY + row * (cardH + rowGap);
+            drawCard(product, x, y);
+        });
+
+        // Page numbers
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(7);
+            doc.setTextColor(156, 163, 175);
+            doc.text(`${i} / ${pageCount}`, pageW / 2, pageH - 5, { align: 'center' });
+        }
+
+        const filename = `gadimat-catalogue-${currentBrandFilter.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`;
+        doc.save(filename);
+        showToast('PDF exporté avec succès.');
+    } catch (err) {
+        console.error('PDF export error:', err);
+        showToast("Erreur lors de l'export PDF.", 'error');
+    } finally {
+        exportBtn.disabled = false;
+        exportBtn.innerHTML = '<i class="fa-solid fa-file-pdf text-red-500"></i> Exporter PDF';
     }
+}
 
-    const filename = `gadimat-catalogue-${currentBrandFilter.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`;
-    doc.save(filename);
-    showToast('PDF exporté avec succès.');
+async function fetchImageAsDataUrl(url) {
+    try {
+        const res = await fetch(url);
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+        });
+    } catch {
+        return null;
+    }
+}
+
+function getImageFormat(dataUrl) {
+    const mime = dataUrl.split(';')[0].split(':')[1];
+    if (mime === 'image/png') return 'PNG';
+    if (mime === 'image/webp') return 'WEBP';
+    return 'JPEG';
 }
 
 // --- UTILS ---
