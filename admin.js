@@ -203,7 +203,7 @@ function renderProducts(data) {
 
         const statusBadge = product.is_hidden 
             ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Masqué</span>`
-            : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Actif</span>`;
+            : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disponible</span>`;
 
         const hideIcon = product.is_hidden ? "fa-eye" : "fa-eye-slash";
         const hideTitle = product.is_hidden ? "Afficher le produit" : "Masquer le produit";
