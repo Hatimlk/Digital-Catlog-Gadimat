@@ -475,6 +475,90 @@ window.toggleHideProduct = async (id, currentStatus) => {
     }
 };
 
+// --- PDF EXPORT ---
+document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
+
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+
+    const filteredData = currentBrandFilter === 'ALL'
+        ? products
+        : products.filter(p => p.brand && p.brand.toUpperCase() === currentBrandFilter);
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Header bar
+    doc.setFillColor(15, 23, 42); // slate-900
+    doc.rect(0, 0, pageWidth, 22, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('GADIMAT', 14, 14);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(148, 163, 184); // slate-400
+    doc.text('Catalogue des produits', 14, 19);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`Exporté le ${today}`, pageWidth - 14, 14, { align: 'right' });
+
+    const filterLabel = currentBrandFilter === 'ALL' ? 'Toutes les marques' : currentBrandFilter;
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Filtre: ${filterLabel} — ${filteredData.length} produit(s)`, pageWidth - 14, 19, { align: 'right' });
+
+    const tableRows = filteredData.map(p => [
+        p.brand || '',
+        p.type || '',
+        p.code || '',
+        p.label || '',
+        p.epaisseur || '—',
+        p.is_hidden ? 'Masqué' : 'Disponible',
+    ]);
+
+    doc.autoTable({
+        startY: 28,
+        head: [['Marque', 'Type', 'Code', 'Label', 'Épaisseur', 'Statut']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: {
+            fillColor: [37, 99, 235], // blue-600
+            textColor: 255,
+            fontStyle: 'bold',
+            fontSize: 9,
+        },
+        bodyStyles: { fontSize: 8.5, textColor: [31, 41, 55] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+            0: { fontStyle: 'bold' },
+            5: {
+                halign: 'center',
+                fontStyle: 'bold',
+            },
+        },
+        didParseCell(data) {
+            if (data.section === 'body' && data.column.index === 5) {
+                data.cell.styles.textColor = data.cell.raw === 'Masqué' ? [185, 28, 28] : [21, 128, 61];
+            }
+        },
+        margin: { left: 14, right: 14 },
+    });
+
+    // Page numbers
+    const pageCount = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+        doc.setPage(i);
+        doc.setFontSize(8);
+        doc.setTextColor(156, 163, 175);
+        doc.text(`Page ${i} / ${pageCount}`, pageWidth / 2, doc.internal.pageSize.getHeight() - 6, { align: 'center' });
+    }
+
+    const filename = `gadimat-catalogue-${currentBrandFilter.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    showToast('PDF exporté avec succès.');
+}
+
 // --- UTILS ---
 function setLoading(isLoading) {
     const saveSpinner = document.getElementById('saveSpinner');
