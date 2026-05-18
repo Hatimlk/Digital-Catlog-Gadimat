@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Migration vers Supabase</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script> <!-- Load existing data -->
+</head>
+<body style="font-family: sans-serif; padding: 2rem;">
+    <h1>Migration des produits vers Supabase</h1>
+    <button id="migrateBtn" style="padding: 10px 20px; font-size: 16px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer;">Lancer la Migration</button>
+    <div id="status" style="margin-top: 20px; white-space: pre-wrap;"></div>
+
+    <script>
+        document.getElementById('migrateBtn').addEventListener('click', async () => {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = "Début de la migration...\n";
+            
+            const allProducts = [];
+            
+            // Generate products from original data structure (since script.js might clear catalogData.products)
+            Object.entries(brandAssetCatalogs).forEach(([brand, catalog]) => {
+                Object.keys(catalog).forEach((type) => {
+                    catalog[type].forEach(entry => {
+                        const product = makeBrandProduct(brand, type, entry);
+                        allProducts.push({
+                            brand: product.brand,
+                            type: type,
+                            code: product.code,
+                            label: product.name.replace(`${product.code} - `, ''), // Extract label
+                            epaisseur: '',
+                            surface_image_url: product.surfaceImage,
+                            preview_image_url: product.previewImage
+                        });
+                    });
+                });
+            });
+
+            statusEl.textContent += `Trouvé ${allProducts.length} produits à migrer.\n`;
+
+            try {
+                // Bulk insert
+                const { error } = await supabaseClient
+                    .from('products')
+                    .insert(allProducts);
+
+                if (error) {
+                    throw error;
+                }
+                
+                statusEl.textContent += `\nMigration terminée avec succès ! ${allProducts.length} produits ajoutés à Supabase.\n`;
+                statusEl.textContent += `Vous pouvez maintenant ouvrir admin.html pour vérifier !\n`;
+                statusEl.textContent += `ATTENTION: Ne cliquez pas une deuxième fois sinon vous aurez des doublons.`;
+            } catch (err) {
+                statusEl.textContent += `\nERREUR: ${err.message}\n`;
+                console.error(err);
+            }
+        });
+    </script>
+</body>
+</html>

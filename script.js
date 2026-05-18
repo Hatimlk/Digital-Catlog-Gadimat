@@ -668,7 +668,8 @@ function App() {
               h("div", null, h("span", null, "Code"), h("strong", null, getProductReference(detailProduct))),
               h("div", null, h("span", null, "Type"), h("strong", null, detailRoute.type)),
               h("div", null, h("span", null, "Taille"), h("strong", null, getProductSize(detailRoute.type))),
-              h("div", null, h("span", null, "Finition"), h("strong", null, detailProduct.aspect || detailTypeData.materialLabel))
+              h("div", null, h("span", null, "Finition"), h("strong", null, detailProduct.aspect || detailTypeData.materialLabel)),
+              detailProduct.epaisseur ? h("div", null, h("span", null, "Épaisseur"), h("strong", null, detailProduct.epaisseur)) : null
             )
           ),
           h(
@@ -751,8 +752,7 @@ function App() {
                   className: "brand-card__logo",
                   src: brandLogos[brand.name],
                   alt: `Logo ${brand.name}`,
-                }),
-                h("span", { className: "brand-card__label" }, brand.label)
+                })
               )
             )
           ),
@@ -1082,5 +1082,68 @@ function App() {
   );
 }
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(h(App));
+const SUPABASE_URL = 'https://hcrfhiponimvivbrznwk.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjcmZoaXBvbmltdml2YnJ6bndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzgzMjQsImV4cCI6MjA5NDY1NDMyNH0.LCgAOm_aOcLx6CuT7gOjJzLyBX8UzwN-SCV9KZ8DD90';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+async function initApp() {
+  try {
+    const { data: dbProducts, error } = await supabaseClient
+      .from('products')
+      .select('*')
+      .order('code', { ascending: true });
+
+    if (error) throw error;
+
+    // Clear existing local products and populate from DB
+    catalogData.products = {
+      "MDF LAM": [],
+      "HIGH GLOSS": [],
+      SUPRAMAT: []
+    };
+
+    if (dbProducts && dbProducts.length > 0) {
+      dbProducts.forEach(dbProd => {
+        const type = dbProd.type;
+        const typeData = catalogData.types[type] || {};
+        const brandKey = dbProd.brand.toUpperCase();
+        
+        // Skip hidden products
+        if (dbProd.is_hidden === true) {
+            return;
+        }
+
+        const mappedProduct = {
+          brand: brandKey,
+          code: dbProd.code,
+          name: `${dbProd.code} - ${dbProd.label}`,
+          description: dbProd.label,
+          aspect: typeData.materialLabel || "",
+          usage: dbProd.label || `Reference ${dbProd.brand}`,
+          colors: [],
+          background: typeData.materialBackground || "#ccc",
+          surfaceImage: dbProd.surface_image_url,
+          previewImage: dbProd.preview_image_url,
+          epaisseur: dbProd.epaisseur
+        };
+
+        if (!catalogData.products[type]) {
+          catalogData.products[type] = [];
+        }
+        catalogData.products[type].push(mappedProduct);
+      });
+    }
+
+  } catch (err) {
+    console.error("Failed to load products from Supabase:", err);
+    // If it fails, the app will just use the pre-populated catalogData.products from the script
+  }
+
+  const rootElement = document.getElementById("root");
+  if (rootElement) {
+    const root = ReactDOM.createRoot(rootElement);
+    root.render(h(App));
+  }
+}
+
+initApp();

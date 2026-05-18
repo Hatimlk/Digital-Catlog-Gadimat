@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gadimat - Back Office</title>
+    <!-- Tailwind CSS for rapid UI development -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- html2pdf for visual PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    
+    <!-- Login Screen -->
+    <div id="loginContainer" class="min-h-screen flex items-center justify-center bg-gray-100">
+        <div class="bg-white p-8 rounded-xl shadow-lg w-full max-w-md">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-900 tracking-wider">GADIMAT</h1>
+                <p class="text-gray-500 mt-2">Connexion à l'espace sécurisé</p>
+            </div>
+            <form id="loginForm" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input type="email" id="loginEmail" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                    <input type="password" id="loginPassword" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                </div>
+                <div id="loginError" class="hidden text-sm text-red-600 bg-red-50 p-3 rounded-lg border border-red-200"></div>
+                <button type="submit" id="loginBtn" class="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center gap-2">
+                    <span id="loginBtnText">Se connecter</span>
+                    <i id="loginSpinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    <div class="min-h-screen flex" id="appContainer" style="display: none;">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-900 text-white flex flex-col">
+            <div class="p-6 border-b border-slate-800">
+                <h1 class="text-2xl font-bold tracking-wider">GADIMAT</h1>
+                <p class="text-slate-400 text-sm mt-1">Admin Panel</p>
+            </div>
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-lg transition-colors">
+                    <i class="fa-solid fa-box"></i>
+                    Produits
+                </a>
+                <a href="index.html" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-800 hover:text-white rounded-lg transition-colors" target="_blank">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                    Voir le site
+                </a>
+            </nav>
+            <div class="p-4 border-t border-slate-800">
+                <button id="logoutBtn" class="flex items-center gap-3 px-4 py-3 text-slate-300 hover:text-red-400 w-full rounded-lg transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8 overflow-y-auto">
+            <div class="max-w-6xl mx-auto">
+                <header class="flex justify-between items-center mb-8">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Gestion des Produits</h2>
+                        <p class="text-gray-500 mt-1">Ajoutez, modifiez ou supprimez des produits de votre catalogue.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button id="exportPdfBtn" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 px-5 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-file-pdf text-red-500"></i> Exporter PDF
+                        </button>
+                        <button id="openModalBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Nouveau Produit
+                        </button>
+                    </div>
+                </header>
+
+                <!-- Loading State -->
+                <div id="loadingIndicator" class="hidden flex justify-center items-center py-12">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 border-b border-gray-200 text-sm text-gray-500 uppercase tracking-wider">
+                                    <th class="px-6 py-4 font-medium">Image</th>
+                                    <th class="px-6 py-4 font-medium">Marque</th>
+                                    <th class="px-6 py-4 font-medium">Type</th>
+                                    <th class="px-6 py-4 font-medium">Code</th>
+                                    <th class="px-6 py-4 font-medium">Label</th>
+                                    <th class="px-6 py-4 font-medium">Épaisseur</th>
+                                    <th class="px-6 py-4 font-medium">Statut</th>
+                                    <th class="px-6 py-4 font-medium text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productsTableBody" class="divide-y divide-gray-200">
+                                <!-- Products will be injected here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+                <h3 id="modalTitle" class="text-xl font-bold text-gray-900">Ajouter un produit</h3>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+            
+            <form id="productForm" class="p-6 overflow-y-auto space-y-6">
+                <input type="hidden" id="productId">
+                
+                <div class="grid grid-cols-2 gap-6">
+                    <!-- Marque -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Marque *</label>
+                        <select id="brand" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <option value="">Sélectionner...</option>
+                            <option value="AGT">AGT</option>
+                            <option value="CAMSAN">Çamsan</option>
+                            <option value="VENNI">Venni</option>
+                            <option value="YILDIZ">Yıldız Entegre</option>
+                            <option value="KRONOSPAN">Kronospan</option>
+                        </select>
+                    </div>
+
+                    <!-- Type -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Type de panneau *</label>
+                        <select id="type" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <option value="">Sélectionner...</option>
+                            <option value="MDF LAM">MDF LAM</option>
+                            <option value="HIGH GLOSS">HIGH GLOSS</option>
+                            <option value="SUPRAMAT">SUPRAMAT</option>
+                        </select>
+                    </div>
+
+                    <!-- Code -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Code Produit *</label>
+                        <input type="text" id="code" required placeholder="Ex: L003" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <!-- Label -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Label / Nom *</label>
+                        <input type="text" id="label" required placeholder="Ex: NOIR" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+                    
+                    <!-- Epaisseur -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Épaisseur</label>
+                        <input type="text" id="epaisseur" placeholder="Ex: 18mm" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    </div>
+
+                    <!-- Visibility Toggle -->
+                    <div class="flex items-center mt-6">
+                        <label class="flex items-center gap-3 cursor-pointer">
+                            <input type="checkbox" id="isHidden" class="w-5 h-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                            <span class="text-sm font-medium text-gray-700">Masquer ce produit du catalogue</span>
+                        </label>
+                    </div>
+
+                    <!-- Surface Image -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Image de Surface (Texture) *</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <i class="fa-regular fa-image text-4xl text-gray-400 mb-3"></i>
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <label for="surfaceImage" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Télécharger un fichier</span>
+                                        <input id="surfaceImage" name="surfaceImage" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500">PNG, JPG, WEBP</p>
+                                <p id="surfaceImageName" class="text-sm font-medium text-blue-600 mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preview Image -->
+                    <div class="col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Image de Showroom (Mise en situation)</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition-colors">
+                            <div class="space-y-1 text-center">
+                                <i class="fa-regular fa-image text-4xl text-gray-400 mb-3"></i>
+                                <div class="flex text-sm text-gray-600 justify-center">
+                                    <label for="previewImage" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Télécharger un fichier</span>
+                                        <input id="previewImage" name="previewImage" type="file" class="sr-only" accept="image/*">
+                                    </label>
+                                </div>
+                                <p class="text-xs text-gray-500">Optionnel - PNG, JPG, WEBP</p>
+                                <p id="previewImageName" class="text-sm font-medium text-blue-600 mt-2"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="formError" class="hidden bg-red-50 text-red-600 p-4 rounded-lg text-sm border border-red-200"></div>
+
+            </form>
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+                <button type="button" id="cancelBtn" class="px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors font-medium">Annuler</button>
+                <button type="button" id="saveBtn" class="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2">
+                    <span id="saveBtnText">Enregistrer</span>
+                    <i id="saveSpinner" class="fa-solid fa-circle-notch fa-spin hidden"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 z-50">
+        <i id="toastIcon" class="fa-solid fa-check-circle text-green-400"></i>
+        <span id="toastMessage">Produit enregistré avec succès.</span>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
