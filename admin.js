@@ -414,19 +414,15 @@ exportPdfBtn.addEventListener('click', async () => {
 
         // 3. Construire le conteneur HTML global (invisible)
         const container = document.createElement('div');
-        // Fix for html2canvas blank page: use absolute positioning but keep in viewport behind everything
+        // Fix for html2canvas blank page: move off-screen horizontally instead of using zIndex/opacity
         container.style.position = 'absolute';
         container.style.top = '0';
-        container.style.left = '0';
+        container.style.left = '-9999px';
         container.style.width = '210mm';
-        container.style.zIndex = '-9999';
         container.style.background = 'white';
-        // container.style.opacity = '0'; // opacity: 0 can cause blank captures in html2canvas! We use zIndex instead.
         
-        // Inject Google Fonts
-        const pagesHtml = [
-            `<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">`
-        ];
+        // Font is already loaded in admin.html, no need to inject <link> here
+        const pagesHtml = [];
 
         Object.keys(grouped).forEach(key => {
             const [brand, type] = key.split('|');
