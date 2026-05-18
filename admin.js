@@ -20,7 +20,9 @@ const logoutBtn = document.getElementById('logoutBtn');
 // Other DOM Elements
 const viewTableBtn = document.getElementById('viewTableBtn');
 const viewGridBtn = document.getElementById('viewGridBtn');
-const brandFilter = document.getElementById('brandFilter');
+const brandFilterBtn = document.getElementById('brandFilterBtn');
+const brandFilterPanel = document.getElementById('brandFilterPanel');
+const brandFilterLabel = document.getElementById('brandFilterLabel');
 const tableContainer = document.getElementById('tableContainer');
 const gridContainer = document.getElementById('gridContainer');
 const productsTableBody = document.getElementById('productsTableBody');
@@ -50,13 +52,53 @@ const previewImageName = document.getElementById('previewImageName');
 let products = [];
 let currentSession = null;
 let currentView = 'table'; // 'table' or 'grid'
-let currentBrandFilter = 'ALL';
+let selectedBrands = new Set();
 
 // --- FILTER & VIEW TOGGLE LOGIC ---
-brandFilter.addEventListener('change', (e) => {
-    currentBrandFilter = e.target.value;
+
+// Toggle dropdown open/close
+brandFilterBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    brandFilterPanel.classList.toggle('hidden');
+});
+
+// Close when clicking outside
+document.addEventListener('click', (e) => {
+    if (!document.getElementById('brandFilterWrapper').contains(e.target)) {
+        brandFilterPanel.classList.add('hidden');
+    }
+});
+
+// "Toutes les marques" clears all checkboxes
+document.getElementById('filterAllBtn').addEventListener('click', () => {
+    selectedBrands.clear();
+    document.querySelectorAll('.brand-check').forEach(cb => cb.checked = false);
+    updateBrandFilterLabel();
     renderProducts(products);
 });
+
+// Individual brand checkboxes
+document.querySelectorAll('.brand-check').forEach(cb => {
+    cb.addEventListener('change', () => {
+        if (cb.checked) {
+            selectedBrands.add(cb.value);
+        } else {
+            selectedBrands.delete(cb.value);
+        }
+        updateBrandFilterLabel();
+        renderProducts(products);
+    });
+});
+
+function updateBrandFilterLabel() {
+    if (selectedBrands.size === 0) {
+        brandFilterLabel.textContent = 'Toutes les marques';
+        brandFilterBtn.classList.remove('border-blue-400', 'bg-blue-50');
+    } else {
+        brandFilterLabel.textContent = [...selectedBrands].join(', ');
+        brandFilterBtn.classList.add('border-blue-400', 'bg-blue-50');
+    }
+}
 
 viewTableBtn.addEventListener('click', () => switchView('table'));
 viewGridBtn.addEventListener('click', () => switchView('grid'));
@@ -169,9 +211,9 @@ function renderProducts(data) {
     gridContainer.innerHTML = '';
     
     // Apply Filter
-    const filteredData = currentBrandFilter === 'ALL' 
-        ? data 
-        : data.filter(p => p.brand && p.brand.toUpperCase() === currentBrandFilter);
+    const filteredData = selectedBrands.size === 0
+        ? data
+        : data.filter(p => p.brand && selectedBrands.has(p.brand.toUpperCase()));
     
     if (filteredData.length === 0) {
         productsTableBody.innerHTML = `
@@ -483,9 +525,9 @@ async function exportToPDF() {
     exportBtn.disabled = true;
     exportBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-gray-400"></i> Génération...';
 
-    const filteredData = currentBrandFilter === 'ALL'
+    const filteredData = selectedBrands.size === 0
         ? products
-        : products.filter(p => p.brand && p.brand.toUpperCase() === currentBrandFilter);
+        : products.filter(p => p.brand && selectedBrands.has(p.brand.toUpperCase()));
 
     try {
         const { jsPDF } = window.jspdf;
@@ -494,7 +536,7 @@ async function exportToPDF() {
         const pageH = doc.internal.pageSize.getHeight();  // 210
 
         const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
-        const filterLabel = currentBrandFilter === 'ALL' ? 'Toutes les marques' : currentBrandFilter;
+        const filterLabel = selectedBrands.size === 0 ? 'Toutes les marques' : [...selectedBrands].join(', ');
 
         // Layout constants
         const margin = 12;
@@ -635,7 +677,8 @@ async function exportToPDF() {
             doc.text(`${i} / ${pageCount}`, pageW / 2, pageH - 5, { align: 'center' });
         }
 
-        const filename = `gadimat-catalogue-${currentBrandFilter.toLowerCase()}-${new Date().toISOString().slice(0, 10)}.pdf`;
+        const brandSlug = selectedBrands.size === 0 ? 'all' : [...selectedBrands].join('-').toLowerCase();
+        const filename = `gadimat-catalogue-${brandSlug}-${new Date().toISOString().slice(0, 10)}.pdf`;
         doc.save(filename);
         showToast('PDF exporté avec succès.');
     } catch (err) {

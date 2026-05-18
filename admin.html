@@ -76,17 +76,38 @@
                     </div>
                     <div class="flex flex-wrap items-center gap-4">
                         <!-- Brand Filter -->
-                        <div class="relative">
-                            <select id="brandFilter" class="appearance-none bg-white border border-gray-200 rounded-lg px-4 py-2.5 pr-10 text-sm font-medium text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-shadow cursor-pointer">
-                                <option value="ALL">Toutes les marques</option>
-                                <option value="AGT">AGT</option>
-                                <option value="CAMSAN">CAMSAN</option>
-                                <option value="KRONOSPAN">KRONOSPAN</option>
-                                <option value="VENNI">VENNI</option>
-                                <option value="YILDIZ">YILDIZ</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                        <div class="relative" id="brandFilterWrapper">
+                            <button id="brandFilterBtn" class="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 transition-colors cursor-pointer">
+                                <i class="fa-solid fa-filter text-gray-400 text-xs"></i>
+                                <span id="brandFilterLabel">Toutes les marques</span>
+                                <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+                            </button>
+                            <div id="brandFilterPanel" class="hidden absolute top-full left-0 mt-2 bg-white border border-gray-200 rounded-xl shadow-lg z-30 min-w-[200px] p-2">
+                                <button id="filterAllBtn" class="w-full flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-blue-50 text-sm font-semibold text-blue-600 transition-colors">
+                                    <i class="fa-solid fa-layer-group text-xs"></i>
+                                    Toutes les marques
+                                </button>
+                                <div class="h-px bg-gray-100 my-1.5"></div>
+                                <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" value="AGT" class="brand-check w-4 h-4 rounded accent-blue-600">
+                                    <span class="text-sm text-gray-700 font-medium">AGT</span>
+                                </label>
+                                <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" value="CAMSAN" class="brand-check w-4 h-4 rounded accent-blue-600">
+                                    <span class="text-sm text-gray-700 font-medium">CAMSAN</span>
+                                </label>
+                                <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" value="KRONOSPAN" class="brand-check w-4 h-4 rounded accent-blue-600">
+                                    <span class="text-sm text-gray-700 font-medium">KRONOSPAN</span>
+                                </label>
+                                <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" value="VENNI" class="brand-check w-4 h-4 rounded accent-blue-600">
+                                    <span class="text-sm text-gray-700 font-medium">VENNI</span>
+                                </label>
+                                <label class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                    <input type="checkbox" value="YILDIZ" class="brand-check w-4 h-4 rounded accent-blue-600">
+                                    <span class="text-sm text-gray-700 font-medium">YILDIZ</span>
+                                </label>
                             </div>
                         </div>
 
