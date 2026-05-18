@@ -444,16 +444,21 @@ exportPdfBtn.addEventListener('click', async () => {
                                 const isSupabase = p.surface_image_url && p.surface_image_url.includes('supabase.co');
                                 const crossOriginAttr = isSupabase ? 'crossorigin="anonymous"' : '';
                                 gridHtml += `
-                        <div style="display:flex; flex-direction:column; align-items:flex-start; width:calc(33.333% - 10mm); margin-bottom: 15mm;">
-                            <div style="font-size:28px; font-weight:800; font-family:'Montserrat', sans-serif; color:#1a1a1a; margin-bottom:10px;">
-                                ${ep}
-                            </div>
-                            <div style="background:white; padding:8px; width:100%; box-shadow: 0 4px 12px rgba(0,0,0,0.05); box-sizing: border-box;">
-                                <img ${crossOriginAttr} src="${p.surface_image_url}" style="width:100%; aspect-ratio:1; object-fit:cover; display:block;">
-                                <div style="padding-top:10px; padding-bottom:5px; font-family:'Montserrat', sans-serif;">
-                                    <div style="font-size:16px; font-weight:800; color:#333;">${p.code}</div>
-                                    <div style="font-size:12px; font-weight:700; color:#777; text-transform:uppercase;">${p.label}</div>
+                        <div style="display:flex; flex-direction:column; width:calc(33.333% - 10mm); margin-bottom: 20mm; background-color: #ffffff; border: 1px solid #f3f4f6; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); box-sizing: border-box; font-family: 'Montserrat', sans-serif;">
+                            <!-- En-tête de la carte -->
+                            <div style="padding: 16px; border-bottom: 1px solid #f3f4f6; background-color: #f9fafb; display: flex; justify-content: space-between; align-items: flex-start; height: 75px; box-sizing: border-box;">
+                                <div>
+                                    <h3 style="margin: 0; font-size: 18px; font-weight: 800; color: #111827;">${p.code}</h3>
+                                    <p style="margin: 4px 0 0 0; font-size: 11px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em;">${p.label}</p>
                                 </div>
+                                <span style="display: inline-block; padding: 4px 10px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 9999px; font-size: 10px; font-weight: 700; color: #374151;">
+                                    ${ep}
+                                </span>
+                            </div>
+                            <!-- Image Zone -->
+                            <div style="width: 100%; position: relative;">
+                                <div style="padding-top: 100%;"></div>
+                                <img ${crossOriginAttr} src="${p.surface_image_url}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; display: block;">
                             </div>
                         </div>
                     `;
