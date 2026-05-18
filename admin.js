@@ -483,11 +483,7 @@ exportPdfBtn.addEventListener('click', async () => {
             }
         });
 
-        container.innerHTML = pagesHtml.join('');
-        document.body.appendChild(container);
-
-        // Wait a short moment to ensure images start loading before capturing
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        const fullHtml = `<div style="width: 210mm; background-color: white;">${pagesHtml.join('')}</div>`;
 
         // 4. Options html2pdf
         const opt = {
@@ -498,17 +494,15 @@ exportPdfBtn.addEventListener('click', async () => {
                 scale: 2, 
                 useCORS: true, 
                 letterRendering: true,
-                allowTaint: false,
-                scrollY: 0
+                allowTaint: false
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 5. Générer
-        await html2pdf().set(opt).from(container).save();
+        // 5. Générer directement à partir du HTML (html2pdf gère le rendu en arrière-plan)
+        await html2pdf().set(opt).from(fullHtml).save();
         
         // Nettoyer
-        document.body.removeChild(container);
         setLoading(false);
         showToast('Export PDF réussi !');
     } catch (error) {
