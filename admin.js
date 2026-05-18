@@ -20,6 +20,7 @@ const logoutBtn = document.getElementById('logoutBtn');
 // Other DOM Elements
 const viewTableBtn = document.getElementById('viewTableBtn');
 const viewGridBtn = document.getElementById('viewGridBtn');
+const brandFilter = document.getElementById('brandFilter');
 const tableContainer = document.getElementById('tableContainer');
 const gridContainer = document.getElementById('gridContainer');
 const productsTableBody = document.getElementById('productsTableBody');
@@ -49,8 +50,14 @@ const previewImageName = document.getElementById('previewImageName');
 let products = [];
 let currentSession = null;
 let currentView = 'table'; // 'table' or 'grid'
+let currentBrandFilter = 'ALL';
 
-// --- VIEW TOGGLE LOGIC ---
+// --- FILTER & VIEW TOGGLE LOGIC ---
+brandFilter.addEventListener('change', (e) => {
+    currentBrandFilter = e.target.value;
+    renderProducts(products);
+});
+
 viewTableBtn.addEventListener('click', () => switchView('table'));
 viewGridBtn.addEventListener('click', () => switchView('grid'));
 
@@ -161,23 +168,28 @@ function renderProducts(data) {
     productsTableBody.innerHTML = '';
     gridContainer.innerHTML = '';
     
-    if (data.length === 0) {
+    // Apply Filter
+    const filteredData = currentBrandFilter === 'ALL' 
+        ? data 
+        : data.filter(p => p.brand && p.brand.toUpperCase() === currentBrandFilter);
+    
+    if (filteredData.length === 0) {
         productsTableBody.innerHTML = `
             <tr>
                 <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                    Aucun produit trouvé. Cliquez sur "Nouveau Produit" pour commencer.
+                    Aucun produit trouvé pour cette catégorie.
                 </td>
             </tr>
         `;
         gridContainer.innerHTML = `
             <div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
-                Aucun produit trouvé. Cliquez sur "Nouveau Produit" pour commencer.
+                Aucun produit trouvé pour cette catégorie.
             </div>
         `;
         return;
     }
 
-    data.forEach(product => {
+    filteredData.forEach(product => {
         const surfaceImgSrc = product.surface_image_url || '';
         const hasImg = !!product.surface_image_url;
         
