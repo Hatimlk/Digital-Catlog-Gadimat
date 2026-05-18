@@ -66,14 +66,24 @@
         <!-- Main Content -->
         <main class="flex-1 p-8 overflow-y-auto">
             <div class="max-w-6xl mx-auto">
-                <header class="flex justify-between items-center mb-8">
+                <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                     <div>
                         <h2 class="text-3xl font-bold text-gray-900">Gestion des Produits</h2>
                         <p class="text-gray-500 mt-1">Ajoutez, modifiez ou supprimez des produits de votre catalogue.</p>
                     </div>
-                    <button id="openModalBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
-                        <i class="fa-solid fa-plus"></i> Nouveau Produit
-                    </button>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-white border border-gray-200 rounded-lg p-1 flex shadow-sm">
+                            <button id="viewTableBtn" class="px-3 py-1.5 rounded-md bg-gray-100 text-gray-800 transition-colors" title="Vue Liste">
+                                <i class="fa-solid fa-list"></i>
+                            </button>
+                            <button id="viewGridBtn" class="px-3 py-1.5 rounded-md text-gray-400 hover:text-gray-800 transition-colors" title="Vue Grille">
+                                <i class="fa-solid fa-grip"></i>
+                            </button>
+                        </div>
+                        <button id="openModalBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-sm transition-colors flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Nouveau Produit
+                        </button>
+                    </div>
                 </header>
 
                 <!-- Loading State -->
@@ -81,8 +91,8 @@
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
                 </div>
 
-                <!-- Products Table -->
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Products Table Container -->
+                <div id="tableContainer" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                     <div class="overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
@@ -102,6 +112,11 @@
                             </tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Products Grid Container -->
+                <div id="gridContainer" class="hidden grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <!-- Products will be injected here -->
                 </div>
             </div>
         </main>

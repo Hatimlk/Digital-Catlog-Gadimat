@@ -18,6 +18,10 @@ const loginSpinner = document.getElementById('loginSpinner');
 const logoutBtn = document.getElementById('logoutBtn');
 
 // Other DOM Elements
+const viewTableBtn = document.getElementById('viewTableBtn');
+const viewGridBtn = document.getElementById('viewGridBtn');
+const tableContainer = document.getElementById('tableContainer');
+const gridContainer = document.getElementById('gridContainer');
 const productsTableBody = document.getElementById('productsTableBody');
 const loadingIndicator = document.getElementById('loadingIndicator');
 const openModalBtn = document.getElementById('openModalBtn');
@@ -44,6 +48,34 @@ const previewImageName = document.getElementById('previewImageName');
 
 let products = [];
 let currentSession = null;
+let currentView = 'table'; // 'table' or 'grid'
+
+// --- VIEW TOGGLE LOGIC ---
+viewTableBtn.addEventListener('click', () => switchView('table'));
+viewGridBtn.addEventListener('click', () => switchView('grid'));
+
+function switchView(view) {
+    currentView = view;
+    if (view === 'table') {
+        // UI Buttons
+        viewTableBtn.classList.replace('text-gray-400', 'text-gray-800');
+        viewTableBtn.classList.add('bg-gray-100');
+        viewGridBtn.classList.replace('text-gray-800', 'text-gray-400');
+        viewGridBtn.classList.remove('bg-gray-100');
+        // Containers
+        tableContainer.classList.remove('hidden');
+        gridContainer.classList.add('hidden');
+    } else {
+        // UI Buttons
+        viewGridBtn.classList.replace('text-gray-400', 'text-gray-800');
+        viewGridBtn.classList.add('bg-gray-100');
+        viewTableBtn.classList.replace('text-gray-800', 'text-gray-400');
+        viewTableBtn.classList.remove('bg-gray-100');
+        // Containers
+        gridContainer.classList.remove('hidden');
+        tableContainer.classList.add('hidden');
+    }
+}
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
@@ -124,28 +156,38 @@ async function fetchProducts() {
     }
 }
 
-// --- RENDER TABLE ---
+// --- RENDER DATA ---
 function renderProducts(data) {
     productsTableBody.innerHTML = '';
+    gridContainer.innerHTML = '';
     
     if (data.length === 0) {
         productsTableBody.innerHTML = `
             <tr>
-                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                     Aucun produit trouvé. Cliquez sur "Nouveau Produit" pour commencer.
                 </td>
             </tr>
+        `;
+        gridContainer.innerHTML = `
+            <div class="col-span-full py-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
+                Aucun produit trouvé. Cliquez sur "Nouveau Produit" pour commencer.
+            </div>
         `;
         return;
     }
 
     data.forEach(product => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-gray-50 transition-colors";
+        const surfaceImgSrc = product.surface_image_url || '';
+        const hasImg = !!product.surface_image_url;
         
-        const surfaceImg = product.surface_image_url 
-            ? `<img src="${product.surface_image_url}" class="w-12 h-12 object-cover rounded-md border border-gray-200">`
+        const surfaceImgTable = hasImg 
+            ? `<img src="${surfaceImgSrc}" class="w-12 h-12 object-cover rounded-md border border-gray-200">`
             : `<div class="w-12 h-12 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center text-gray-400"><i class="fa-solid fa-image"></i></div>`;
+
+        const surfaceImgGrid = hasImg
+            ? `<img src="${surfaceImgSrc}" class="w-full h-48 object-cover">`
+            : `<div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400"><i class="fa-solid fa-image text-3xl"></i></div>`;
 
         const statusBadge = product.is_hidden 
             ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Masqué</span>`
@@ -155,8 +197,11 @@ function renderProducts(data) {
         const hideTitle = product.is_hidden ? "Afficher le produit" : "Masquer le produit";
         const hideColor = product.is_hidden ? "text-green-600 hover:text-green-900 hover:bg-green-50" : "text-orange-600 hover:text-orange-900 hover:bg-orange-50";
 
+        // 1. Table Row
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-gray-50 transition-colors";
         tr.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap">${surfaceImg}</td>
+            <td class="px-6 py-4 whitespace-nowrap">${surfaceImgTable}</td>
             <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${product.brand}</td>
             <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.type}</td>
             <td class="px-6 py-4 whitespace-nowrap text-gray-600 font-mono text-sm">${product.code}</td>
@@ -176,6 +221,49 @@ function renderProducts(data) {
             </td>
         `;
         productsTableBody.appendChild(tr);
+
+        // 2. Grid Card
+        const card = document.createElement('div');
+        card.className = "bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col relative group";
+        
+        // Add a semi-transparent overlay if hidden
+        const overlay = product.is_hidden ? `<div class="absolute inset-0 bg-white/40 z-10 pointer-events-none"></div>` : '';
+        
+        card.innerHTML = `
+            ${overlay}
+            <div class="relative">
+                ${surfaceImgGrid}
+                <div class="absolute top-3 right-3 z-20">
+                    ${statusBadge}
+                </div>
+            </div>
+            <div class="p-5 flex-1 flex flex-col">
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">${product.brand}</span>
+                        <h3 class="text-lg font-bold text-gray-900 mt-1">${product.code}</h3>
+                    </div>
+                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${product.type}</span>
+                </div>
+                <p class="text-gray-600 font-medium">${product.label}</p>
+                ${product.epaisseur ? `<p class="text-gray-500 text-sm mt-1">Épaisseur: ${product.epaisseur}</p>` : ''}
+                
+                <div class="mt-auto pt-4 flex justify-between border-t border-gray-100 relative z-20">
+                    <button onclick="toggleHideProduct('${product.id}', ${!!product.is_hidden})" class="${hideColor} p-2 rounded-md transition-colors flex items-center gap-2 text-sm font-medium" title="${hideTitle}">
+                        <i class="fa-solid ${hideIcon}"></i>
+                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="editProduct('${product.id}')" class="text-blue-600 hover:text-blue-900 p-2 rounded-md hover:bg-blue-50 transition-colors" title="Modifier">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="deleteProduct('${product.id}')" class="text-red-600 hover:text-red-900 p-2 rounded-md hover:bg-red-50 transition-colors" title="Supprimer">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        gridContainer.appendChild(card);
     });
 }
 
