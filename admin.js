@@ -488,7 +488,56 @@ exportPdfBtn.addEventListener('click', async () => {
             }
         });
 
-        const fullHtml = `<div style="width: 210mm; background-color: white;">${pagesHtml.join('')}</div>`;
+        const fullHtml = `
+            <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;800&display=swap" rel="stylesheet">
+            <div style="width: 210mm; background-color: white;">
+                ${pagesHtml.join('')}
+            </div>
+        `;
+
+        // Create overlay to hide the rendering process but keep it in the DOM
+        const overlay = document.createElement('div');
+        overlay.style.position = 'fixed';
+        overlay.style.top = '0';
+        overlay.style.left = '0';
+        overlay.style.width = '100vw';
+        overlay.style.height = '100vh';
+        overlay.style.backgroundColor = '#ffffff';
+        overlay.style.zIndex = '99999';
+        overlay.style.overflow = 'hidden';
+
+        const message = document.createElement('div');
+        message.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;"><i class="fa-solid fa-spinner fa-spin" style="font-size:40px;color:#2563eb;margin-bottom:20px;"></i><h2 style="font-family:sans-serif;font-size:24px;color:#1f2937;">Génération du PDF en cours...</h2><p style="font-family:sans-serif;color:#6b7280;margin-top:10px;">Veuillez patienter quelques secondes.</p></div>';
+        message.style.position = 'absolute';
+        message.style.top = '0';
+        message.style.left = '0';
+        message.style.width = '100%';
+        message.style.height = '100%';
+        message.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+        message.style.zIndex = '2';
+
+        const container = document.createElement('div');
+        container.style.position = 'absolute';
+        container.style.top = '0';
+        container.style.left = '0';
+        container.style.width = '210mm';
+        container.style.zIndex = '1';
+        container.innerHTML = fullHtml;
+
+        overlay.appendChild(container);
+        overlay.appendChild(message);
+        document.body.appendChild(overlay);
+
+        // Wait for all images to fully load before capturing
+        const images = Array.from(container.querySelectorAll('img'));
+        await Promise.all(images.map(img => new Promise((resolve) => {
+            if (img.complete) return resolve();
+            img.onload = resolve;
+            img.onerror = resolve; // Ignore errors to prevent freezing
+        })));
+        
+        // Extra delay to ensure fonts and layout are computed
+        await new Promise(resolve => setTimeout(resolve, 800));
 
         // 4. Options html2pdf
         const opt = {
@@ -499,15 +548,17 @@ exportPdfBtn.addEventListener('click', async () => {
                 scale: 2, 
                 useCORS: true, 
                 letterRendering: true,
-                allowTaint: false
+                allowTaint: false,
+                scrollY: 0
             },
             jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // 5. Générer directement à partir du HTML (html2pdf gère le rendu en arrière-plan)
-        await html2pdf().set(opt).from(fullHtml).save();
+        // 5. Générer
+        await html2pdf().set(opt).from(container).save();
         
         // Nettoyer
+        document.body.removeChild(overlay);
         setLoading(false);
         showToast('Export PDF réussi !');
     } catch (error) {
