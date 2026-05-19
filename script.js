@@ -387,9 +387,9 @@ function App() {
 
   const availableTypes = getAvailableTypesForBrand(activeBrand);
   const typeData = catalogData.types[activeType];
-  const products = (catalogData.products[activeType] || []).filter(
-    (product) => product.brand === activeBrand
-  );
+  const products = (catalogData.products[activeType] || [])
+    .filter(product => product.brand === activeBrand)
+    .sort((a, b) => (a.code || '').localeCompare(b.code || '', undefined, { numeric: true, sensitivity: 'base' }));
   const safeProductIndex = products.length > 0 ? Math.min(activeProductIndex, products.length - 1) : 0;
   const activeProduct = products[safeProductIndex] || null;
   const detailProduct = findProductByRoute(detailRoute);
