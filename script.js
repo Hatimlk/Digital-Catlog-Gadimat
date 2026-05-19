@@ -886,6 +886,9 @@ function App() {
                           { key: product.code || product.name, className: "product-card__code" },
                           product.code || product.name
                         ),
+                        product.epaisseur
+                          ? h("span", { key: "ep", className: "product-card__epaisseur" }, product.epaisseur)
+                          : null,
                       ])
                   )
                 )
@@ -1040,7 +1043,7 @@ function App() {
                 h(
                   "div",
                   { className: "product-meta" },
-                  h("div", null, h("span", null, "Épaisseur"), h("strong", null, "18 mm")),
+                  activeProduct.epaisseur ? h("div", null, h("span", null, "Épaisseur"), h("strong", null, activeProduct.epaisseur)) : null,
                   h(
                     "div",
                     null,

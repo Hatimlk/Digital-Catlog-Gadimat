@@ -657,6 +657,18 @@ button {
   text-transform: uppercase;
 }
 
+.product-card__epaisseur {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: rgba(107, 114, 128, 0.1);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
 .swatch,
 .swatch-row span {
   width: 18px;
