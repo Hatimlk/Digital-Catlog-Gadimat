@@ -315,7 +315,7 @@ function renderProducts(data) {
         };
         const brandLogoUrl = getBrandLogo(product.brand);
         const brandDisplay = brandLogoUrl 
-            ? `<img src="${brandLogoUrl}" alt="${product.brand}" class="h-9 object-contain w-auto max-w-[140px]">`
+            ? `<img src="${brandLogoUrl}" alt="${product.brand}" class="h-12 object-contain w-auto max-w-[140px]">`
             : `<span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">${product.brand}</span>`;
 
         // 1. Table Row
