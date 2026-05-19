@@ -59,6 +59,11 @@ let currentView = 'table'; // 'table' or 'grid'
 let selectedBrands = new Set();
 let selectedTypes = new Set();
 
+let selectedProductIds = new Set();
+const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+const selectedCountSpan = document.getElementById('selectedCount');
+
 // --- FILTER & VIEW TOGGLE LOGIC ---
 
 // Toggle dropdown open/close
@@ -266,7 +271,7 @@ function renderProducts(data) {
     if (filteredData.length === 0) {
         productsTableBody.innerHTML = `
             <tr>
-                <td colspan="9" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="10" class="px-6 py-8 text-center text-gray-500">
                     Aucun produit trouvé pour cette catégorie.
                 </td>
             </tr>
@@ -299,10 +304,27 @@ function renderProducts(data) {
         const hideTitle = product.is_hidden ? "Afficher le produit" : "Masquer le produit";
         const hideColor = product.is_hidden ? "text-green-600 hover:text-green-900 hover:bg-green-50" : "text-orange-600 hover:text-orange-900 hover:bg-orange-50";
 
+        const getBrandLogo = (brand) => {
+            const b = (brand || '').toUpperCase();
+            if (b === 'AGT') return 'Assets/Logos/AGT-logo.png';
+            if (b === 'CAMSAN') return 'Assets/Logos/Camsan-logo.png';
+            if (b === 'KRONOSPAN') return 'Assets/Logos/Kronospan-logo.png';
+            if (b === 'VENNI') return 'Assets/Logos/Venni-logo.png';
+            if (b === 'YILDIZ') return 'Assets/Logos/Yildiz-logo.png';
+            return null;
+        };
+        const brandLogoUrl = getBrandLogo(product.brand);
+        const brandDisplay = brandLogoUrl 
+            ? `<img src="${brandLogoUrl}" alt="${product.brand}" class="h-6 object-contain">`
+            : `<span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">${product.brand}</span>`;
+
         // 1. Table Row
         const tr = document.createElement('tr');
         tr.className = "hover:bg-gray-50 transition-colors";
         tr.innerHTML = `
+            <td class="px-4 py-3 whitespace-nowrap text-center">
+                <input type="checkbox" value="${product.id}" class="row-checkbox w-4 h-4 rounded accent-blue-600 cursor-pointer">
+            </td>
             <td class="px-4 py-3 whitespace-nowrap">${surfaceImgTable}</td>
             <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900">${product.brand}</td>
             <td class="px-4 py-3 whitespace-nowrap text-gray-600">${product.type}</td>
@@ -341,16 +363,23 @@ function renderProducts(data) {
                 </div>
             </div>
             <div class="p-5 flex-1 flex flex-col">
-                <div class="flex justify-between items-start mb-2">
+                <div class="flex justify-between items-start mb-3">
                     <div>
-                        <span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">${product.brand}</span>
-                        <h3 class="text-lg font-bold text-gray-900 mt-1">${product.code}</h3>
+                        ${brandDisplay}
                     </div>
-                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">${product.type}</span>
+                    <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded font-medium">${product.type}</span>
                 </div>
-                <p class="text-gray-600 font-medium">${product.label}</p>
-                ${product.epaisseur ? `<p class="text-gray-500 text-sm mt-1">Épaisseur: ${product.epaisseur}</p>` : ''}
-                ${product.finition ? `<p class="text-gray-500 text-sm mt-1">Finition: ${product.finition}</p>` : ''}
+                
+                <div class="flex items-baseline gap-2 mb-2">
+                    <h3 class="text-lg font-bold text-gray-900">${product.code}</h3>
+                    <p class="text-gray-600 font-medium truncate" title="${product.label}">${product.label}</p>
+                </div>
+                
+                <div class="flex gap-2 text-sm text-gray-500 font-medium">
+                   ${product.epaisseur ? `<span>${product.epaisseur}</span>` : ''}
+                   ${product.epaisseur && product.finition ? `<span>•</span>` : ''}
+                   ${product.finition ? `<span>${product.finition}</span>` : ''}
+                </div>
                 
                 <div class="mt-auto pt-4 flex justify-between border-t border-gray-100 relative z-20">
                     <button onclick="toggleHideProduct('${product.id}', ${!!product.is_hidden})" class="${hideColor} p-2 rounded-md transition-colors flex items-center gap-2 text-sm font-medium" title="${hideTitle}">
@@ -368,6 +397,107 @@ function renderProducts(data) {
             </div>
         `;
         gridContainer.appendChild(card);
+    });
+
+    // Handle initial checkbox states based on selection set
+    updateSelectAllCheckboxState();
+    
+    document.querySelectorAll('.row-checkbox').forEach(cb => {
+        if (selectedProductIds.has(cb.value)) {
+            cb.checked = true;
+        }
+        
+        cb.addEventListener('change', (e) => {
+            if (e.target.checked) {
+                selectedProductIds.add(e.target.value);
+            } else {
+                selectedProductIds.delete(e.target.value);
+            }
+            updateSelectionUI();
+        });
+    });
+}
+
+// --- ROW SELECTION LOGIC ---
+function updateSelectionUI() {
+    selectedCountSpan.textContent = selectedProductIds.size;
+    if (selectedProductIds.size > 0) {
+        deleteSelectedBtn.classList.remove('hidden');
+        deleteSelectedBtn.classList.add('flex');
+    } else {
+        deleteSelectedBtn.classList.add('hidden');
+        deleteSelectedBtn.classList.remove('flex');
+    }
+    updateSelectAllCheckboxState();
+}
+
+function updateSelectAllCheckboxState() {
+    const checkboxes = document.querySelectorAll('.row-checkbox');
+    if (checkboxes.length === 0) {
+        if(selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+        return;
+    }
+    
+    const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+    if (checkedCount === 0) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+    } else if (checkedCount === checkboxes.length) {
+        selectAllCheckbox.checked = true;
+        selectAllCheckbox.indeterminate = false;
+    } else {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = true;
+    }
+}
+
+if(selectAllCheckbox) {
+    selectAllCheckbox.addEventListener('change', (e) => {
+        const isChecked = e.target.checked;
+        document.querySelectorAll('.row-checkbox').forEach(cb => {
+            cb.checked = isChecked;
+            if (isChecked) {
+                selectedProductIds.add(cb.value);
+            } else {
+                selectedProductIds.delete(cb.value);
+            }
+        });
+        updateSelectionUI();
+    });
+}
+
+if(deleteSelectedBtn) {
+    deleteSelectedBtn.addEventListener('click', async () => {
+        if (selectedProductIds.size === 0) return;
+        
+        if (!confirm(`Êtes-vous sûr de vouloir supprimer ces ${selectedProductIds.size} produit(s) ? Cette action est irréversible.`)) {
+            return;
+        }
+        
+        try {
+            loadingIndicator.classList.remove('hidden');
+            
+            const idsToDelete = Array.from(selectedProductIds);
+            const { error } = await supabaseClient
+                .from('products')
+                .delete()
+                .in('id', idsToDelete);
+
+            if (error) throw error;
+            
+            showToast(`${idsToDelete.length} produit(s) supprimé(s) avec succès.`);
+            selectedProductIds.clear();
+            updateSelectionUI();
+            fetchProducts();
+        } catch (error) {
+            console.error("Bulk delete error:", error);
+            showToast("Erreur lors de la suppression groupée.", "error");
+        } finally {
+            loadingIndicator.classList.add('hidden');
+        }
     });
 }
 
