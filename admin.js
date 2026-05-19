@@ -315,7 +315,7 @@ function renderProducts(data) {
         };
         const brandLogoUrl = getBrandLogo(product.brand);
         const brandDisplay = brandLogoUrl 
-            ? `<img src="${brandLogoUrl}" alt="${product.brand}" class="h-6 object-contain">`
+            ? `<img src="${brandLogoUrl}" alt="${product.brand}" class="h-9 object-contain w-auto max-w-[140px]">`
             : `<span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">${product.brand}</span>`;
 
         // 1. Table Row
@@ -370,9 +370,9 @@ function renderProducts(data) {
                     <span class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded font-medium">${product.type}</span>
                 </div>
                 
-                <div class="flex items-baseline gap-2 mb-2">
-                    <h3 class="text-lg font-bold text-gray-900">${product.code}</h3>
-                    <p class="text-gray-600 font-medium truncate" title="${product.label}">${product.label}</p>
+                <div class="flex justify-between items-baseline gap-2 mb-2">
+                    <h3 class="text-lg font-bold text-gray-900 shrink-0">${product.code}</h3>
+                    <p class="text-gray-600 font-medium truncate text-right" title="${product.label}">${product.label}</p>
                 </div>
                 
                 <div class="flex gap-2 text-sm text-gray-500 font-medium">
