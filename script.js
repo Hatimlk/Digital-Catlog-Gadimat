@@ -779,15 +779,17 @@ function App() {
         h(
           "div",
           { className: "type-switch reveal", role: "tablist", "aria-label": "Types de produits" },
-          ...availableTypes.map((type) => {
+          ...["MDF LAM", "HIGH GLOSS", "SUPRAMAT"].map((type) => {
+            const available = isBrandTypeAllowed(activeBrand, type);
             return h(
               "button",
               {
                 key: type,
-                className: `type-pill ${type === activeType ? "is-active" : ""}`.trim(),
+                className: `type-pill ${type === activeType ? "is-active" : ""} ${!available ? "is-disabled" : ""}`.trim(),
                 type: "button",
                 role: "tab",
                 "aria-selected": type === activeType,
+                disabled: !available,
                 onClick: () => handleTypeChange(type),
               },
               type
@@ -830,23 +832,6 @@ function App() {
       h(
         "section",
         { className: "section section--products", id: "products" },
-        h(
-          "div",
-          { className: "catalog-type-filter" },
-          ...["MDF LAM", "HIGH GLOSS", "SUPRAMAT"].map((type) =>
-            h(
-              "button",
-              {
-                key: type,
-                type: "button",
-                className: `catalog-type-btn ${type === activeType ? "is-active" : ""} ${!isBrandTypeAllowed(activeBrand, type) ? "is-unavailable" : ""}`.trim(),
-                onClick: () => handleTypeChange(type),
-                disabled: !isBrandTypeAllowed(activeBrand, type),
-              },
-              type
-            )
-          )
-        ),
         h(
           "div",
           { className: "products-layout" },
