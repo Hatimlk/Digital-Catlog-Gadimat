@@ -559,20 +559,36 @@ async function exportToPDF() {
             }
         }));
 
+        // Fetch Gadimat logo
+        let logoDataUrl = null;
+        try { logoDataUrl = await fetchImageAsDataUrl('Assets/Logo-Gadimat01.png'); } catch (_) {}
+
         function drawHeader() {
             doc.setFillColor(15, 23, 42);
             doc.rect(0, 0, pageW, headerH, 'F');
+
+            let textX = margin;
+            if (logoDataUrl) {
+                const logoH = 18;
+                const logoW = 13;
+                const logoY = (headerH - logoH) / 2;
+                doc.setFillColor(255, 255, 255);
+                doc.roundedRect(margin - 1, logoY - 1, logoW + 2, logoH + 2, 1, 1, 'F');
+                doc.addImage(logoDataUrl, 'PNG', margin, logoY, logoW, logoH);
+                textX = margin + logoW + 4;
+            }
+
             doc.setTextColor(255, 255, 255);
-            doc.setFontSize(16);
+            doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
-            doc.text('GADIMAT', margin, 13);
+            doc.text('Catalogue Produits', textX, 12.5);
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(148, 163, 184);
-            doc.text('Catalogue produits', margin, 18.5);
+            doc.text('GADIMAT', textX, 18.5);
             doc.setTextColor(255, 255, 255);
             doc.setFontSize(8);
-            doc.text(today, pageW - margin, 13, { align: 'right' });
+            doc.text(today, pageW - margin, 12.5, { align: 'right' });
             doc.setTextColor(148, 163, 184);
             doc.text(`${filterLabel} — ${filteredData.length} produit(s)`, pageW - margin, 18.5, { align: 'right' });
         }
@@ -609,18 +625,21 @@ async function exportToPDF() {
             doc.text((product.brand || '').toUpperCase(), x + 3, ty);
             ty += 4.5;
 
-            doc.setFontSize(9);
+            // Code + Name on same line
+            doc.setFontSize(8);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(17, 24, 39);
-            doc.text(product.code || '', x + 3, ty);
-            ty += 4.5;
+            const codeText = product.code || '';
+            doc.text(codeText, x + 3, ty);
+            const codeW = doc.getTextWidth(codeText);
 
             doc.setFontSize(7);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(75, 85, 99);
-            const labelLine = doc.splitTextToSize(product.label || '', cardW - 6)[0];
-            doc.text(labelLine, x + 3, ty);
-            ty += 4;
+            const maxNameW = cardW - 6 - codeW - 2;
+            const nameLine = doc.splitTextToSize(product.label || '', maxNameW)[0];
+            doc.text(' ' + nameLine, x + 3 + codeW, ty);
+            ty += 5;
 
             doc.setFontSize(6.5);
             doc.setTextColor(107, 114, 128);
@@ -628,14 +647,15 @@ async function exportToPDF() {
             doc.text(meta, x + 3, ty);
             ty += 4.5;
 
-            // Status badge
-            const hidden = product.is_hidden;
-            doc.setFillColor(...(hidden ? [254, 226, 226] : [220, 252, 231]));
-            doc.roundedRect(x + 3, ty - 3, 20, 4.5, 1, 1, 'F');
-            doc.setFontSize(6);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(...(hidden ? [153, 27, 27] : [21, 128, 61]));
-            doc.text(hidden ? 'Masqué' : 'Disponible', x + 3 + 10, ty + 0.2, { align: 'center' });
+            // Status badge — only for hidden products
+            if (product.is_hidden) {
+                doc.setFillColor(254, 226, 226);
+                doc.roundedRect(x + 3, ty - 3, 20, 4.5, 1, 1, 'F');
+                doc.setFontSize(6);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(153, 27, 27);
+                doc.text('Masqué', x + 3 + 10, ty + 0.2, { align: 'center' });
+            }
         }
 
         function drawPlaceholder(x, y) {
