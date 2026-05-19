@@ -531,16 +531,16 @@ async function exportToPDF() {
 
     try {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-        const pageW = doc.internal.pageSize.getWidth();   // 297
-        const pageH = doc.internal.pageSize.getHeight();  // 210
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = doc.internal.pageSize.getWidth();   // 210
+        const pageH = doc.internal.pageSize.getHeight();  // 297
 
         const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
         const filterLabel = selectedBrands.size === 0 ? 'Toutes les marques' : [...selectedBrands].join(', ');
 
         // Layout constants
         const margin = 12;
-        const cols = 4;
+        const cols = 3;
         const gap = 4;
         const headerH = 22;
         const startY = headerH + 6;
@@ -549,7 +549,7 @@ async function exportToPDF() {
         const infoH = 34;
         const cardH = imgH + infoH;
         const rowGap = 5;
-        const rowsPerPage = 2;
+        const rowsPerPage = 3;
 
         // Pre-fetch all images in parallel
         const imageCache = {};
@@ -564,32 +564,34 @@ async function exportToPDF() {
         try { logoDataUrl = await fetchImageAsDataUrl('Assets/Logo-Gadimat01.png'); } catch (_) {}
 
         function drawHeader() {
-            doc.setFillColor(15, 23, 42);
+            // White background with bottom border
+            doc.setFillColor(255, 255, 255);
             doc.rect(0, 0, pageW, headerH, 'F');
+            doc.setDrawColor(229, 231, 235);
+            doc.setLineWidth(0.4);
+            doc.line(0, headerH, pageW, headerH);
 
             let textX = margin;
             if (logoDataUrl) {
                 const logoH = 18;
                 const logoW = 13;
                 const logoY = (headerH - logoH) / 2;
-                doc.setFillColor(255, 255, 255);
-                doc.roundedRect(margin - 1, logoY - 1, logoW + 2, logoH + 2, 1, 1, 'F');
                 doc.addImage(logoDataUrl, 'PNG', margin, logoY, logoW, logoH);
                 textX = margin + logoW + 4;
             }
 
-            doc.setTextColor(255, 255, 255);
+            doc.setTextColor(15, 23, 42);
             doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
             doc.text('Catalogue Produits', textX, 12.5);
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
-            doc.setTextColor(148, 163, 184);
+            doc.setTextColor(100, 116, 139);
             doc.text('GADIMAT', textX, 18.5);
-            doc.setTextColor(255, 255, 255);
+            doc.setTextColor(15, 23, 42);
             doc.setFontSize(8);
             doc.text(today, pageW - margin, 12.5, { align: 'right' });
-            doc.setTextColor(148, 163, 184);
+            doc.setTextColor(100, 116, 139);
             doc.text(`${filterLabel} — ${filteredData.length} produit(s)`, pageW - margin, 18.5, { align: 'right' });
         }
 
@@ -625,20 +627,24 @@ async function exportToPDF() {
             doc.text((product.brand || '').toUpperCase(), x + 3, ty);
             ty += 4.5;
 
-            // Code + Name on same line
+            // Name on left, Code on right — same line
             doc.setFontSize(8);
             doc.setFont('helvetica', 'bold');
             doc.setTextColor(17, 24, 39);
             const codeText = product.code || '';
-            doc.text(codeText, x + 3, ty);
             const codeW = doc.getTextWidth(codeText);
 
             doc.setFontSize(7);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(75, 85, 99);
-            const maxNameW = cardW - 6 - codeW - 2;
+            const maxNameW = cardW - 6 - codeW - 3;
             const nameLine = doc.splitTextToSize(product.label || '', maxNameW)[0];
-            doc.text(' ' + nameLine, x + 3 + codeW, ty);
+            doc.text(nameLine, x + 3, ty);
+
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(17, 24, 39);
+            doc.text(codeText, x + cardW - 3, ty, { align: 'right' });
             ty += 5;
 
             doc.setFontSize(6.5);
