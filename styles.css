@@ -555,6 +555,44 @@ button {
   font-weight: 700;
 }
 
+.catalog-type-filter {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.catalog-type-btn {
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1.5px solid rgba(44, 81, 143, 0.2);
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.catalog-type-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(44, 81, 143, 0.06);
+}
+
+.catalog-type-btn.is-active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.catalog-type-btn.is-unavailable {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .products-layout {
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;

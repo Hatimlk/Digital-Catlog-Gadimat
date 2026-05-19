@@ -832,6 +832,23 @@ function App() {
         { className: "section section--products", id: "products" },
         h(
           "div",
+          { className: "catalog-type-filter reveal" },
+          ...["MDF LAM", "HIGH GLOSS", "SUPRAMAT"].map((type) =>
+            h(
+              "button",
+              {
+                key: type,
+                type: "button",
+                className: `catalog-type-btn ${type === activeType ? "is-active" : ""} ${!isBrandTypeAllowed(activeBrand, type) ? "is-unavailable" : ""}`.trim(),
+                onClick: () => handleTypeChange(type),
+                disabled: !isBrandTypeAllowed(activeBrand, type),
+              },
+              type
+            )
+          )
+        ),
+        h(
+          "div",
           { className: "products-layout" },
           h(
             "div",
