@@ -886,9 +886,7 @@ function App() {
                           { key: product.code || product.name, className: "product-card__code" },
                           product.code || product.name
                         ),
-                        product.epaisseur
-                          ? h("span", { key: "ep", className: "product-card__epaisseur" }, product.epaisseur)
-                          : null,
+
                       ])
                   )
                 )
