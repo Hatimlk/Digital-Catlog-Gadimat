@@ -1086,7 +1086,7 @@ const SUPABASE_URL = 'https://hcrfhiponimvivbrznwk.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhjcmZoaXBvbmltdml2YnJ6bndrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzgzMjQsImV4cCI6MjA5NDY1NDMyNH0.LCgAOm_aOcLx6CuT7gOjJzLyBX8UzwN-SCV9KZ8DD90';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-async function initApp() {
+async function loadProductsFromDB() {
   try {
     const { data: dbProducts, error } = await supabaseClient
       .from('products')
@@ -1095,7 +1095,6 @@ async function initApp() {
 
     if (error) throw error;
 
-    // Clear existing local products and populate from DB
     catalogData.products = {
       "MDF LAM": [],
       "HIGH GLOSS": [],
@@ -1107,11 +1106,8 @@ async function initApp() {
         const type = dbProd.type;
         const typeData = catalogData.types[type] || {};
         const brandKey = dbProd.brand.toUpperCase();
-        
-        // Skip hidden products
-        if (dbProd.is_hidden === true) {
-            return;
-        }
+
+        if (dbProd.is_hidden === true) return;
 
         const mappedProduct = {
           brand: brandKey,
@@ -1133,17 +1129,29 @@ async function initApp() {
         catalogData.products[type].push(mappedProduct);
       });
     }
-
   } catch (err) {
     console.error("Failed to load products from Supabase:", err);
-    // If it fails, the app will just use the pre-populated catalogData.products from the script
   }
+}
+
+let appRoot = null;
+
+async function initApp() {
+  await loadProductsFromDB();
 
   const rootElement = document.getElementById("root");
   if (rootElement) {
-    const root = ReactDOM.createRoot(rootElement);
-    root.render(h(App));
+    appRoot = ReactDOM.createRoot(rootElement);
+    appRoot.render(h(App));
   }
 }
+
+// Re-fetch and re-render automatically when the user switches back to this tab
+document.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState === 'visible' && appRoot) {
+    await loadProductsFromDB();
+    appRoot.render(h(App));
+  }
+});
 
 initApp();
