@@ -23,6 +23,9 @@ const viewGridBtn = document.getElementById('viewGridBtn');
 const brandFilterBtn = document.getElementById('brandFilterBtn');
 const brandFilterPanel = document.getElementById('brandFilterPanel');
 const brandFilterLabel = document.getElementById('brandFilterLabel');
+const typeFilterBtn = document.getElementById('typeFilterBtn');
+const typeFilterPanel = document.getElementById('typeFilterPanel');
+const typeFilterLabel = document.getElementById('typeFilterLabel');
 const tableContainer = document.getElementById('tableContainer');
 const gridContainer = document.getElementById('gridContainer');
 const productsTableBody = document.getElementById('productsTableBody');
@@ -53,6 +56,7 @@ let products = [];
 let currentSession = null;
 let currentView = 'table'; // 'table' or 'grid'
 let selectedBrands = new Set();
+let selectedTypes = new Set();
 
 // --- FILTER & VIEW TOGGLE LOGIC ---
 
@@ -97,6 +101,47 @@ function updateBrandFilterLabel() {
     } else {
         brandFilterLabel.textContent = [...selectedBrands].join(', ');
         brandFilterBtn.classList.add('border-blue-400', 'bg-blue-50');
+    }
+}
+
+// Type filter toggle
+typeFilterBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    typeFilterPanel.classList.toggle('hidden');
+});
+
+document.addEventListener('click', (e) => {
+    if (!document.getElementById('typeFilterWrapper').contains(e.target)) {
+        typeFilterPanel.classList.add('hidden');
+    }
+});
+
+document.getElementById('typeFilterAllBtn').addEventListener('click', () => {
+    selectedTypes.clear();
+    document.querySelectorAll('.type-check').forEach(cb => cb.checked = false);
+    updateTypeFilterLabel();
+    renderProducts(products);
+});
+
+document.querySelectorAll('.type-check').forEach(cb => {
+    cb.addEventListener('change', () => {
+        if (cb.checked) {
+            selectedTypes.add(cb.value);
+        } else {
+            selectedTypes.delete(cb.value);
+        }
+        updateTypeFilterLabel();
+        renderProducts(products);
+    });
+});
+
+function updateTypeFilterLabel() {
+    if (selectedTypes.size === 0) {
+        typeFilterLabel.textContent = 'Tous les types';
+        typeFilterBtn.classList.remove('border-blue-400', 'bg-blue-50');
+    } else {
+        typeFilterLabel.textContent = [...selectedTypes].join(', ');
+        typeFilterBtn.classList.add('border-blue-400', 'bg-blue-50');
     }
 }
 
@@ -210,10 +255,12 @@ function renderProducts(data) {
     productsTableBody.innerHTML = '';
     gridContainer.innerHTML = '';
     
-    // Apply Filter
-    const filteredData = selectedBrands.size === 0
-        ? data
-        : data.filter(p => p.brand && selectedBrands.has(p.brand.toUpperCase()));
+    // Apply Filters
+    const filteredData = data.filter(p => {
+        const brandOk = selectedBrands.size === 0 || selectedBrands.has((p.brand || '').toUpperCase());
+        const typeOk  = selectedTypes.size === 0  || selectedTypes.has(p.type);
+        return brandOk && typeOk;
+    });
     
     if (filteredData.length === 0) {
         productsTableBody.innerHTML = `
@@ -525,10 +572,11 @@ async function exportToPDF() {
     exportBtn.disabled = true;
     exportBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-gray-400"></i> Génération...';
 
-    const filteredData = (selectedBrands.size === 0
-        ? products
-        : products.filter(p => p.brand && selectedBrands.has(p.brand.toUpperCase()))
-    ).filter(p => !p.is_hidden);
+    const filteredData = products.filter(p => {
+        const brandOk = selectedBrands.size === 0 || selectedBrands.has((p.brand || '').toUpperCase());
+        const typeOk  = selectedTypes.size === 0  || selectedTypes.has(p.type);
+        return brandOk && typeOk && !p.is_hidden;
+    });
 
     try {
         const { jsPDF } = window.jspdf;
