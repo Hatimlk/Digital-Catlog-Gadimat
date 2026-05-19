@@ -421,12 +421,15 @@ function renderProducts(data) {
 // --- ROW SELECTION LOGIC ---
 function updateSelectionUI() {
     selectedCountSpan.textContent = selectedProductIds.size;
+    const exportBtn = document.getElementById('exportPdfBtn');
     if (selectedProductIds.size > 0) {
         deleteSelectedBtn.classList.remove('hidden');
         deleteSelectedBtn.classList.add('flex');
+        exportBtn.innerHTML = `<i class="fa-solid fa-file-pdf text-red-500"></i> Exporter sélection (${selectedProductIds.size})`;
     } else {
         deleteSelectedBtn.classList.add('hidden');
         deleteSelectedBtn.classList.remove('flex');
+        exportBtn.innerHTML = '<i class="fa-solid fa-file-pdf text-red-500"></i> Exporter PDF';
     }
     updateSelectAllCheckboxState();
 }
@@ -707,11 +710,13 @@ async function exportToPDF() {
     exportBtn.disabled = true;
     exportBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-gray-400"></i> Génération...';
 
-    const filteredData = products.filter(p => {
-        const brandOk = selectedBrands.size === 0 || selectedBrands.has((p.brand || '').toUpperCase());
-        const typeOk  = selectedTypes.size === 0  || selectedTypes.has(p.type);
-        return brandOk && typeOk && !p.is_hidden;
-    });
+    const filteredData = selectedProductIds.size > 0
+        ? products.filter(p => selectedProductIds.has(p.id))
+        : products.filter(p => {
+            const brandOk = selectedBrands.size === 0 || selectedBrands.has((p.brand || '').toUpperCase());
+            const typeOk  = selectedTypes.size === 0  || selectedTypes.has(p.type);
+            return brandOk && typeOk && !p.is_hidden;
+        });
 
     try {
         const { jsPDF } = window.jspdf;
@@ -720,7 +725,9 @@ async function exportToPDF() {
         const pageH = doc.internal.pageSize.getHeight();  // 297
 
         const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
-        const filterLabel = selectedBrands.size === 0 ? 'Toutes les marques' : [...selectedBrands].join(', ');
+        const filterLabel = selectedProductIds.size > 0
+            ? `Sélection — ${selectedProductIds.size} produit(s)`
+            : (selectedBrands.size === 0 ? 'Toutes les marques' : [...selectedBrands].join(', '));
 
         // Layout constants
         const margin = 12;
