@@ -303,15 +303,15 @@ function renderProducts(data) {
         const tr = document.createElement('tr');
         tr.className = "hover:bg-gray-50 transition-colors";
         tr.innerHTML = `
-            <td class="px-6 py-4 whitespace-nowrap">${surfaceImgTable}</td>
-            <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900">${product.brand}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.type}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-600 font-mono text-sm">${product.code}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.label}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.epaisseur || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.finition || '-'}</td>
-            <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+            <td class="px-4 py-3 whitespace-nowrap">${surfaceImgTable}</td>
+            <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900">${product.brand}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-gray-600">${product.type}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-gray-600 font-mono text-sm">${product.code}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-gray-600">${product.label}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-gray-600">${product.epaisseur || '-'}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-gray-600">${product.finition || '-'}</td>
+            <td class="px-4 py-3 whitespace-nowrap">${statusBadge}</td>
+            <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="toggleHideProduct('${product.id}', ${!!product.is_hidden})" class="${hideColor} mr-3 p-2 rounded-md transition-colors" title="${hideTitle}">
                     <i class="fa-solid ${hideIcon}"></i>
                 </button>
