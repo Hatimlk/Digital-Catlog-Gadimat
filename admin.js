@@ -46,6 +46,7 @@ const typeInput = document.getElementById('type');
 const codeInput = document.getElementById('code');
 const labelInput = document.getElementById('label');
 const epaisseurInput = document.getElementById('epaisseur');
+const finitionInput = document.getElementById('finition');
 const isHiddenInput = document.getElementById('isHidden');
 const surfaceImageInput = document.getElementById('surfaceImage');
 const previewImageInput = document.getElementById('previewImage');
@@ -265,7 +266,7 @@ function renderProducts(data) {
     if (filteredData.length === 0) {
         productsTableBody.innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="9" class="px-6 py-8 text-center text-gray-500">
                     Aucun produit trouvé pour cette catégorie.
                 </td>
             </tr>
@@ -308,6 +309,7 @@ function renderProducts(data) {
             <td class="px-6 py-4 whitespace-nowrap text-gray-600 font-mono text-sm">${product.code}</td>
             <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.label}</td>
             <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.epaisseur || '-'}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-gray-600">${product.finition || '-'}</td>
             <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button onclick="toggleHideProduct('${product.id}', ${!!product.is_hidden})" class="${hideColor} mr-3 p-2 rounded-md transition-colors" title="${hideTitle}">
@@ -348,6 +350,7 @@ function renderProducts(data) {
                 </div>
                 <p class="text-gray-600 font-medium">${product.label}</p>
                 ${product.epaisseur ? `<p class="text-gray-500 text-sm mt-1">Épaisseur: ${product.epaisseur}</p>` : ''}
+                ${product.finition ? `<p class="text-gray-500 text-sm mt-1">Finition: ${product.finition}</p>` : ''}
                 
                 <div class="mt-auto pt-4 flex justify-between border-t border-gray-100 relative z-20">
                     <button onclick="toggleHideProduct('${product.id}', ${!!product.is_hidden})" class="${hideColor} p-2 rounded-md transition-colors flex items-center gap-2 text-sm font-medium" title="${hideTitle}">
@@ -447,6 +450,7 @@ saveBtn.addEventListener('click', async () => {
             code: codeInput.value,
             label: labelInput.value,
             epaisseur: epaisseurInput.value || null,
+            finition: finitionInput.value || null,
             is_hidden: isHiddenInput.checked
         };
 
@@ -509,6 +513,7 @@ window.editProduct = (id) => {
     codeInput.value = product.code;
     labelInput.value = product.label;
     epaisseurInput.value = product.epaisseur || '';
+    finitionInput.value = product.finition || '';
     isHiddenInput.checked = product.is_hidden || false;
     
     surfaceImageName.textContent = product.surface_image_url ? 'Image existante conservée (téléchargez pour remplacer)' : '';
