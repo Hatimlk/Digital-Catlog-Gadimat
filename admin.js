@@ -525,9 +525,10 @@ async function exportToPDF() {
     exportBtn.disabled = true;
     exportBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-gray-400"></i> Génération...';
 
-    const filteredData = selectedBrands.size === 0
+    const filteredData = (selectedBrands.size === 0
         ? products
-        : products.filter(p => p.brand && selectedBrands.has(p.brand.toUpperCase()));
+        : products.filter(p => p.brand && selectedBrands.has(p.brand.toUpperCase()))
+    ).filter(p => !p.is_hidden);
 
     try {
         const { jsPDF } = window.jspdf;
