@@ -832,7 +832,7 @@ function App() {
         { className: "section section--products", id: "products" },
         h(
           "div",
-          { className: "catalog-type-filter reveal" },
+          { className: "catalog-type-filter" },
           ...["MDF LAM", "HIGH GLOSS", "SUPRAMAT"].map((type) =>
             h(
               "button",
