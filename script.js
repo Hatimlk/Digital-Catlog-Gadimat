@@ -922,12 +922,12 @@ function App() {
                   className: "product-preview__surface",
                   style: previewSurfaceStyle,
                 },
-                h("span", { className: "preview-badge" }, `${activeType} Showroom`),
+                h("span", { className: "preview-badge" }, activeType),
                 activeProduct.previewImage
                   ? h("img", {
                     className: "product-preview__hero-image",
                     src: activeProduct.previewImage,
-                    alt: `${activeProduct.name} showroom`,
+                    alt: `${activeProduct.name} preview`,
                     loading: "lazy",
                   })
                   : h(
@@ -1044,12 +1044,6 @@ function App() {
                   "div",
                   { className: "product-meta" },
                   activeProduct.epaisseur ? h("div", null, h("span", null, "Épaisseur"), h("strong", null, activeProduct.epaisseur)) : null,
-                  h(
-                    "div",
-                    null,
-                    h("span", null, "Showroom"),
-                    h("strong", null, activeProduct.previewImage ? "Disponible" : "Non disponible")
-                  ),
                   h(
                     "div",
                     null,
