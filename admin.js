@@ -737,16 +737,31 @@ async function exportToPDF() {
         const startY = headerH + 6;
         const cardW = (pageW - 2 * margin - (cols - 1) * gap) / cols;
         const imgH = 46;
-        const infoH = 34;
+        const infoH = 20;
         const cardH = imgH + infoH;
         const rowGap = 5;
         const rowsPerPage = 3;
 
+        const getBrandLogo = (brand) => {
+            const b = (brand || '').toUpperCase();
+            if (b === 'AGT') return 'Assets/Logos/AGT-logo.png';
+            if (b === 'CAMSAN') return 'Assets/Logos/Camsan-logo.png';
+            if (b === 'KRONOSPAN') return 'Assets/Logos/Kronospan-logo.png';
+            if (b === 'VENNI') return 'Assets/Logos/Venni-logo.png';
+            if (b === 'YILDIZ') return 'Assets/Logos/Yildiz-logo.png';
+            return null;
+        };
+
         // Pre-fetch all images in parallel
         const imageCache = {};
+        const brandLogoCache = {};
         await Promise.all(filteredData.map(async (p) => {
             if (p.surface_image_url) {
                 imageCache[p.id] = await fetchImageAsDataUrl(p.surface_image_url);
+            }
+            const brandLogoUrl = getBrandLogo(p.brand);
+            if (brandLogoUrl && !brandLogoCache[p.brand]) {
+                brandLogoCache[p.brand] = await fetchImageAsDataUrl(brandLogoUrl);
             }
         }));
 
@@ -774,11 +789,11 @@ async function exportToPDF() {
             doc.setTextColor(15, 23, 42);
             doc.setFontSize(14);
             doc.setFont('helvetica', 'bold');
-            doc.text('Catalogue Produits', textX, 12.5);
+            doc.text('Catalogue Produits', pageW / 2, 12.5, { align: 'center' });
             doc.setFontSize(8);
             doc.setFont('helvetica', 'normal');
             doc.setTextColor(100, 116, 139);
-            doc.text('GADIMAT', textX, 18.5);
+            doc.text('GADIMAT', pageW / 2, 18.5, { align: 'center' });
             doc.setTextColor(15, 23, 42);
             doc.setFontSize(8);
             doc.text(today, pageW - margin, 12.5, { align: 'right' });
@@ -812,10 +827,25 @@ async function exportToPDF() {
             // Info area
             let ty = y + imgH + 4;
 
-            doc.setFontSize(6.5);
-            doc.setFont('helvetica', 'bold');
-            doc.setTextColor(37, 99, 235);
-            doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+            const brandLogoData = brandLogoCache[product.brand];
+            if (brandLogoData) {
+                try {
+                    const props = doc.getImageProperties(brandLogoData);
+                    const logoH = 4;
+                    const logoW = (props.width * logoH) / props.height;
+                    doc.addImage(brandLogoData, getImageFormat(brandLogoData), x + 3, ty - 3.5, logoW, logoH);
+                } catch (_) {
+                    doc.setFontSize(6.5);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(37, 99, 235);
+                    doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+                }
+            } else {
+                doc.setFontSize(6.5);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(37, 99, 235);
+                doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+            }
             ty += 4.5;
 
             // Name on left, Code on right — same line
@@ -840,8 +870,12 @@ async function exportToPDF() {
 
             doc.setFontSize(6.5);
             doc.setTextColor(107, 114, 128);
-            const meta = [product.type, product.epaisseur].filter(Boolean).join(' · ');
-            doc.text(meta, x + 3, ty);
+            if (product.type) {
+                doc.text(product.type, x + 3, ty);
+            }
+            if (product.epaisseur) {
+                doc.text(product.epaisseur, x + cardW - 3, ty, { align: 'right' });
+            }
             ty += 4.5;
 
             // Status badge — only for hidden products
