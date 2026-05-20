@@ -737,7 +737,7 @@ async function exportToPDF() {
         const startY = headerH + 6;
         const cardW = (pageW - 2 * margin - (cols - 1) * gap) / cols;
         const imgH = 46;
-        const infoH = 20;
+        const infoH = 22;
         const cardH = imgH + infoH;
         const rowGap = 5;
         const rowsPerPage = 3;
@@ -825,15 +825,21 @@ async function exportToPDF() {
             }
 
             // Info area
-            let ty = y + imgH + 4;
+            let ty = y + imgH + 5;
 
             const brandLogoData = brandLogoCache[product.brand];
             if (brandLogoData) {
                 try {
                     const props = doc.getImageProperties(brandLogoData);
-                    const logoH = 4;
-                    const logoW = (props.width * logoH) / props.height;
-                    doc.addImage(brandLogoData, getImageFormat(brandLogoData), x + 3, ty - 3.5, logoW, logoH);
+                    let logoH = 7;
+                    let logoW = (props.width * logoH) / props.height;
+                    
+                    if (logoW > 25) {
+                        logoW = 25;
+                        logoH = (props.height * logoW) / props.width;
+                    }
+                    
+                    doc.addImage(brandLogoData, getImageFormat(brandLogoData), x + 3, ty - (logoH - 1.5), logoW, logoH);
                 } catch (_) {
                     doc.setFontSize(6.5);
                     doc.setFont('helvetica', 'bold');
@@ -846,7 +852,7 @@ async function exportToPDF() {
                 doc.setTextColor(37, 99, 235);
                 doc.text((product.brand || '').toUpperCase(), x + 3, ty);
             }
-            ty += 4.5;
+            ty += 5.5;
 
             // Name on left, Code on right — same line
             doc.setFontSize(8);
