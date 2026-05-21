@@ -183,7 +183,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         alert("⚠️ Supabase URL is not configured.");
         return;
     }
-    
+
     // Check active session
     const { data: { session } } = await supabaseClient.auth.getSession();
     handleSession(session);
@@ -236,7 +236,7 @@ logoutBtn.addEventListener('click', async () => {
 async function fetchProducts() {
     loadingIndicator.classList.remove('hidden');
     productsTableBody.innerHTML = '';
-    
+
     try {
         const { data, error } = await supabaseClient
             .from('products')
@@ -245,7 +245,7 @@ async function fetchProducts() {
             .order('id', { ascending: true }); // Tie-breaker for products migrated at the same time
 
         if (error) throw error;
-        
+
         products = data;
         renderProducts(data);
     } catch (error) {
@@ -260,14 +260,14 @@ async function fetchProducts() {
 function renderProducts(data) {
     productsTableBody.innerHTML = '';
     gridContainer.innerHTML = '';
-    
+
     // Apply Filters
     const filteredData = data.filter(p => {
         const brandOk = selectedBrands.size === 0 || selectedBrands.has((p.brand || '').toUpperCase());
-        const typeOk  = selectedTypes.size === 0  || selectedTypes.has(p.type);
+        const typeOk = selectedTypes.size === 0 || selectedTypes.has(p.type);
         return brandOk && typeOk;
     });
-    
+
     if (filteredData.length === 0) {
         productsTableBody.innerHTML = `
             <tr>
@@ -287,8 +287,8 @@ function renderProducts(data) {
     filteredData.forEach(product => {
         const surfaceImgSrc = product.surface_image_url || '';
         const hasImg = !!product.surface_image_url;
-        
-        const surfaceImgTable = hasImg 
+
+        const surfaceImgTable = hasImg
             ? `<img src="${surfaceImgSrc}" class="w-12 h-12 object-cover rounded-md border border-gray-200">`
             : `<div class="w-12 h-12 bg-gray-100 rounded-md border border-gray-200 flex items-center justify-center text-gray-400"><i class="fa-solid fa-image"></i></div>`;
 
@@ -296,7 +296,7 @@ function renderProducts(data) {
             ? `<img src="${surfaceImgSrc}" class="w-full h-48 object-cover">`
             : `<div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400"><i class="fa-solid fa-image text-3xl"></i></div>`;
 
-        const statusBadge = product.is_hidden 
+        const statusBadge = product.is_hidden
             ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Masqué</span>`
             : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disponible</span>`;
 
@@ -314,7 +314,7 @@ function renderProducts(data) {
             return null;
         };
         const brandLogoUrl = getBrandLogo(product.brand);
-        const brandDisplay = brandLogoUrl 
+        const brandDisplay = brandLogoUrl
             ? `<img src="${brandLogoUrl}" alt="${product.brand}" class="h-12 object-contain w-auto max-w-[140px]">`
             : `<span class="text-xs font-semibold text-blue-600 uppercase tracking-wider">${product.brand}</span>`;
 
@@ -350,10 +350,10 @@ function renderProducts(data) {
         // 2. Grid Card
         const card = document.createElement('div');
         card.className = "bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col relative group";
-        
+
         // Add a semi-transparent overlay if hidden
         const overlay = product.is_hidden ? `<div class="absolute inset-0 bg-white/40 z-10 pointer-events-none"></div>` : '';
-        
+
         card.innerHTML = `
             ${overlay}
             <div class="relative">
@@ -401,12 +401,12 @@ function renderProducts(data) {
 
     // Handle initial checkbox states based on selection set
     updateSelectAllCheckboxState();
-    
+
     document.querySelectorAll('.row-checkbox').forEach(cb => {
         if (selectedProductIds.has(cb.value)) {
             cb.checked = true;
         }
-        
+
         cb.addEventListener('change', (e) => {
             if (e.target.checked) {
                 selectedProductIds.add(e.target.value);
@@ -437,13 +437,13 @@ function updateSelectionUI() {
 function updateSelectAllCheckboxState() {
     const checkboxes = document.querySelectorAll('.row-checkbox');
     if (checkboxes.length === 0) {
-        if(selectAllCheckbox) {
+        if (selectAllCheckbox) {
             selectAllCheckbox.checked = false;
             selectAllCheckbox.indeterminate = false;
         }
         return;
     }
-    
+
     const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
     if (checkedCount === 0) {
         selectAllCheckbox.checked = false;
@@ -457,7 +457,7 @@ function updateSelectAllCheckboxState() {
     }
 }
 
-if(selectAllCheckbox) {
+if (selectAllCheckbox) {
     selectAllCheckbox.addEventListener('change', (e) => {
         const isChecked = e.target.checked;
         document.querySelectorAll('.row-checkbox').forEach(cb => {
@@ -472,17 +472,17 @@ if(selectAllCheckbox) {
     });
 }
 
-if(deleteSelectedBtn) {
+if (deleteSelectedBtn) {
     deleteSelectedBtn.addEventListener('click', async () => {
         if (selectedProductIds.size === 0) return;
-        
+
         if (!confirm(`Êtes-vous sûr de vouloir supprimer ces ${selectedProductIds.size} produit(s) ? Cette action est irréversible.`)) {
             return;
         }
-        
+
         try {
             loadingIndicator.classList.remove('hidden');
-            
+
             const idsToDelete = Array.from(selectedProductIds);
             const { error } = await supabaseClient
                 .from('products')
@@ -490,7 +490,7 @@ if(deleteSelectedBtn) {
                 .in('id', idsToDelete);
 
             if (error) throw error;
-            
+
             showToast(`${idsToDelete.length} produit(s) supprimé(s) avec succès.`);
             selectedProductIds.clear();
             updateSelectionUI();
@@ -554,7 +554,7 @@ saveBtn.addEventListener('click', async () => {
     }
 
     const isEdit = !!productIdInput.value;
-    
+
     if (!isEdit && !surfaceImageInput.files[0]) {
         showError("Une image de surface est obligatoire pour un nouveau produit.");
         return;
@@ -648,7 +648,7 @@ window.editProduct = (id) => {
     epaisseurInput.value = product.epaisseur || '';
     finitionInput.value = product.finition || '';
     isHiddenInput.checked = product.is_hidden || false;
-    
+
     surfaceImageName.textContent = product.surface_image_url ? 'Image existante conservée (téléchargez pour remplacer)' : '';
     previewImageName.textContent = product.preview_image_url ? 'Image existante conservée (téléchargez pour remplacer)' : '';
 
@@ -668,7 +668,7 @@ window.deleteProduct = async (id) => {
             .eq('id', id);
 
         if (error) throw error;
-        
+
         showToast('Produit supprimé avec succès.');
         fetchProducts();
     } catch (error) {
@@ -687,14 +687,14 @@ window.toggleHideProduct = async (id, currentStatus) => {
             .eq('id', id);
 
         if (error) throw error;
-        
+
         // Update local state without refetching from DB to keep exact position
         const productIndex = products.findIndex(p => p.id === id);
         if (productIndex !== -1) {
             products[productIndex].is_hidden = newStatus;
             renderProducts(products);
         }
-        
+
         showToast(newStatus ? 'Produit masqué avec succès.' : 'Produit activé avec succès.');
     } catch (error) {
         console.error("Toggle hide error:", error);
@@ -714,7 +714,7 @@ async function exportToPDF() {
         ? products.filter(p => selectedProductIds.has(p.id))
         : products.filter(p => {
             const brandOk = selectedBrands.size === 0 || selectedBrands.has((p.brand || '').toUpperCase());
-            const typeOk  = selectedTypes.size === 0  || selectedTypes.has(p.type);
+            const typeOk = selectedTypes.size === 0 || selectedTypes.has(p.type);
             return brandOk && typeOk && !p.is_hidden;
         });
 
@@ -737,7 +737,7 @@ async function exportToPDF() {
         const startY = headerH + 6;
         const cardW = (pageW - 2 * margin - (cols - 1) * gap) / cols;
         const imgH = 46;
-        const infoH = 22;
+        const infoH = 42;
         const cardH = imgH + infoH;
         const rowGap = 5;
         const rowsPerPage = 3;
@@ -767,7 +767,7 @@ async function exportToPDF() {
 
         // Fetch Gadimat logo
         let logoDataUrl = null;
-        try { logoDataUrl = await fetchImageAsDataUrl('Assets/Logo-Gadimat01.png'); } catch (_) {}
+        try { logoDataUrl = await fetchImageAsDataUrl('Assets/Logo-Gadimat01.png'); } catch (_) { }
 
         function drawHeader() {
             // White background with bottom border
@@ -831,28 +831,30 @@ async function exportToPDF() {
             if (brandLogoData) {
                 try {
                     const props = doc.getImageProperties(brandLogoData);
-                    let logoH = 7;
+                    let logoH = 12;
                     let logoW = (props.width * logoH) / props.height;
-                    
-                    if (logoW > 25) {
-                        logoW = 25;
+
+                    if (logoW > 35) {
+                        logoW = 35;
                         logoH = (props.height * logoW) / props.width;
                     }
-                    
-                    doc.addImage(brandLogoData, getImageFormat(brandLogoData), x + 3, ty - (logoH - 1.5), logoW, logoH);
+
+                    doc.addImage(brandLogoData, getImageFormat(brandLogoData), x + 3, y + imgH + 2, logoW, logoH);
+                    ty = y + imgH + 2 + logoH + 4.5;
                 } catch (_) {
                     doc.setFontSize(6.5);
                     doc.setFont('helvetica', 'bold');
                     doc.setTextColor(37, 99, 235);
                     doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+                    ty += 5.5;
                 }
             } else {
                 doc.setFontSize(6.5);
                 doc.setFont('helvetica', 'bold');
                 doc.setTextColor(37, 99, 235);
                 doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+                ty += 5.5;
             }
-            ty += 5.5;
 
             // Name on left, Code on right — same line
             doc.setFontSize(8);
@@ -974,7 +976,7 @@ function getImageFormat(dataUrl) {
 function setLoading(isLoading) {
     const saveSpinner = document.getElementById('saveSpinner');
     const saveBtnText = document.getElementById('saveBtnText');
-    
+
     if (isLoading) {
         saveBtn.disabled = true;
         cancelBtn.disabled = true;
@@ -1001,7 +1003,7 @@ function showToast(message, type = 'success') {
     const toastIcon = document.getElementById('toastIcon');
 
     toastMessage.textContent = message;
-    
+
     if (type === 'error') {
         toastIcon.className = "fa-solid fa-circle-exclamation text-red-400";
         toast.classList.remove('bg-gray-900');
@@ -1013,7 +1015,7 @@ function showToast(message, type = 'success') {
     }
 
     toast.classList.remove('translate-y-20', 'opacity-0');
-    
+
     setTimeout(() => {
         toast.classList.add('translate-y-20', 'opacity-0');
     }, 3000);
