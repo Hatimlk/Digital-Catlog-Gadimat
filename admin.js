@@ -831,11 +831,11 @@ async function exportToPDF() {
             if (brandLogoData) {
                 try {
                     const props = doc.getImageProperties(brandLogoData);
-                    let logoH = 12;
+                    let logoH = 16;
                     let logoW = (props.width * logoH) / props.height;
 
-                    if (logoW > 35) {
-                        logoW = 35;
+                    if (logoW > 50) {
+                        logoW = 50;
                         logoH = (props.height * logoW) / props.width;
                     }
 
