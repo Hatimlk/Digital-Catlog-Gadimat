@@ -710,6 +710,19 @@ function App() {
   return h(
     "div",
     { className: "page-shell" },
+    h(
+      "div",
+      { className: "global-actions", style: { position: "absolute", top: "20px", right: "20px", zIndex: 50 } },
+      h(
+        "button",
+        { 
+          className: "primary-btn", 
+          id: "exportCatalogBtn",
+          onClick: () => exportCatalogToPDF(activeBrand, activeType, products)
+        },
+        "Exporter le catalogue"
+      )
+    ),
     renderGadimatHeader("", ""),
     h(
       "main",
@@ -1150,5 +1163,273 @@ document.addEventListener('visibilitychange', async () => {
     appRoot.render(h(App));
   }
 });
+
+async function exportCatalogToPDF(activeBrand, activeType, productsToExport) {
+    if (window.location.protocol === 'file:') {
+        alert("Attention : L'export PDF ne peut pas inclure les images lorsque le site est ouvert localement (file://) à cause de la sécurité du navigateur. Veuillez utiliser un serveur local (ex: Live Server) pour que les images s'affichent dans le PDF.");
+    }
+
+    const exportBtn = document.getElementById('exportCatalogBtn');
+    if (exportBtn) {
+        exportBtn.disabled = true;
+        exportBtn.innerText = 'Génération...';
+    }
+
+    try {
+        if (!window.jspdf) {
+            throw new Error("jsPDF n'est pas chargé.");
+        }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+        const pageW = doc.internal.pageSize.getWidth();
+        const pageH = doc.internal.pageSize.getHeight();
+
+        const today = new Date().toLocaleDateString('fr-FR', { year: 'numeric', month: 'long', day: 'numeric' });
+        const filterLabel = `${activeBrand} - ${activeType}`;
+
+        const margin = 12;
+        const cols = 3;
+        const gap = 4;
+        const headerH = 22;
+        const startY = headerH + 6;
+        const cardW = (pageW - 2 * margin - (cols - 1) * gap) / cols;
+        const imgH = 46;
+        const infoH = 42;
+        const cardH = imgH + infoH;
+        const rowGap = 5;
+        const rowsPerPage = 3;
+
+        // Pre-fetch images sequentially or in small chunks to avoid network congestion
+        const imageCache = {};
+        const brandLogoCache = {};
+        const chunkSize = 5;
+        for (let i = 0; i < productsToExport.length; i += chunkSize) {
+            const chunk = productsToExport.slice(i, i + chunkSize);
+            await Promise.all(chunk.map(async (p) => {
+                if (p.surfaceImage && !imageCache[p.code]) {
+                    imageCache[p.code] = await fetchImageAsDataUrl(p.surfaceImage);
+                }
+                if (brandLogos[p.brand] && !brandLogoCache[p.brand]) {
+                    brandLogoCache[p.brand] = await fetchImageAsDataUrl(brandLogos[p.brand]);
+                }
+            }));
+        }
+
+        let logoDataUrl = null;
+        try { logoDataUrl = await fetchImageAsDataUrl('Assets/Logo-Gadimat01.png'); } catch (_) { }
+
+        function drawHeader() {
+            doc.setFillColor(255, 255, 255);
+            doc.rect(0, 0, pageW, headerH, 'F');
+            doc.setDrawColor(229, 231, 235);
+            doc.setLineWidth(0.4);
+            doc.line(0, headerH, pageW, headerH);
+
+            let textX = margin;
+            if (logoDataUrl) {
+                const logoH = 18;
+                const logoW = 13;
+                const logoY = (headerH - logoH) / 2;
+                doc.addImage(logoDataUrl, 'PNG', margin, logoY, logoW, logoH);
+            }
+
+            doc.setTextColor(15, 23, 42);
+            doc.setFontSize(14);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Catalogue Produits', pageW / 2, 12.5, { align: 'center' });
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 116, 139);
+            doc.text('GADIMAT', pageW / 2, 18.5, { align: 'center' });
+            doc.setTextColor(15, 23, 42);
+            doc.setFontSize(8);
+            doc.text(today, pageW - margin, 12.5, { align: 'right' });
+            doc.setTextColor(100, 116, 139);
+            doc.text(`${filterLabel} — ${productsToExport.length} produit(s)`, pageW - margin, 18.5, { align: 'right' });
+        }
+
+        function drawCard(product, x, y) {
+            doc.setFillColor(255, 255, 255);
+            doc.setDrawColor(229, 231, 235);
+            doc.setLineWidth(0.3);
+            doc.roundedRect(x, y, cardW, cardH, 2, 2, 'FD');
+
+            const imgData = imageCache[product.code];
+            if (imgData) {
+                try {
+                    doc.addImage(imgData, getImageFormat(imgData), x, y, cardW, imgH);
+                    doc.setDrawColor(229, 231, 235);
+                    doc.setLineWidth(0.3);
+                    doc.roundedRect(x, y, cardW, cardH, 2, 2, 'S');
+                } catch (e) {
+                    console.error("Erreur lors de l'ajout de l'image au PDF :", e);
+                    drawPlaceholder(x, y);
+                }
+            } else {
+                drawPlaceholder(x, y);
+            }
+
+            let ty = y + imgH + 5;
+            const brandLogoData = brandLogoCache[product.brand];
+            if (brandLogoData) {
+                try {
+                    const props = doc.getImageProperties(brandLogoData);
+                    let logoH = 16;
+                    let logoW = (props.width * logoH) / props.height;
+                    if (logoW > 50) {
+                        logoW = 50;
+                        logoH = (props.height * logoW) / props.width;
+                    }
+                    doc.addImage(brandLogoData, getImageFormat(brandLogoData), x + 3, y + imgH + 2, logoW, logoH);
+                    ty = y + imgH + 2 + logoH + 4.5;
+                } catch (_) {
+                    doc.setFontSize(6.5);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(37, 99, 235);
+                    doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+                    ty += 5.5;
+                }
+            } else {
+                doc.setFontSize(6.5);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(37, 99, 235);
+                doc.text((product.brand || '').toUpperCase(), x + 3, ty);
+                ty += 5.5;
+            }
+
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(17, 24, 39);
+            const codeText = product.code || '';
+            const codeW = doc.getTextWidth(codeText);
+
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(75, 85, 99);
+            const maxNameW = cardW - 6 - codeW - 3;
+            const nameLine = doc.splitTextToSize(product.description || '', maxNameW)[0];
+            doc.text(nameLine, x + 3, ty);
+
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(17, 24, 39);
+            doc.text(codeText, x + cardW - 3, ty, { align: 'right' });
+            ty += 5;
+
+            doc.setFontSize(6.5);
+            doc.setTextColor(107, 114, 128);
+            if (activeType) {
+                doc.text(activeType, x + 3, ty);
+            }
+            if (product.epaisseur) {
+                doc.text(product.epaisseur, x + cardW - 3, ty, { align: 'right' });
+            }
+            ty += 4.5;
+        }
+
+        function drawPlaceholder(x, y) {
+            doc.setFillColor(243, 244, 246);
+            doc.rect(x, y, cardW, imgH, 'F');
+            doc.setTextColor(156, 163, 175);
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.text('—', x + cardW / 2, y + imgH / 2, { align: 'center' });
+        }
+
+        if (productsToExport.length === 0) {
+            alert("Aucun produit à exporter.");
+            return;
+        }
+
+        let currentPage = 0;
+        productsToExport.forEach((product, i) => {
+            const pageIndex = Math.floor(i / (cols * rowsPerPage));
+            const posInPage = i % (cols * rowsPerPage);
+            const col = posInPage % cols;
+            const row = Math.floor(posInPage / cols);
+
+            if (pageIndex > currentPage) {
+                doc.addPage();
+                currentPage = pageIndex;
+                drawHeader();
+            } else if (i === 0) {
+                drawHeader();
+            }
+
+            const x = margin + col * (cardW + gap);
+            const y = startY + row * (cardH + rowGap);
+            drawCard(product, x, y);
+        });
+
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(7);
+            doc.setTextColor(156, 163, 175);
+            doc.text(`${i} / ${pageCount}`, pageW / 2, pageH - 5, { align: 'center' });
+        }
+
+        const brandSlug = activeBrand.toLowerCase();
+        const typeSlug = activeType.toLowerCase().replace(/\s+/g, '-');
+        const filename = `gadimat-catalogue-${brandSlug}-${typeSlug}-${new Date().toISOString().slice(0, 10)}.pdf`;
+        doc.save(filename);
+
+    } catch (err) {
+        console.error('PDF export error:', err);
+        alert("Erreur lors de l'export PDF.");
+    } finally {
+        if (exportBtn) {
+            exportBtn.disabled = false;
+            exportBtn.innerText = 'Exporter le catalogue';
+        }
+    }
+}
+
+async function fetchImageAsDataUrl(url) {
+    try {
+        const encodedUrl = encodeURI(url);
+        const res = await fetch(encodedUrl);
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    } catch (e) {
+                        console.error('Canvas error:', e);
+                        resolve(reader.result); // Fallback to original data URL if canvas fails
+                    }
+                };
+                img.onerror = () => {
+                    console.error('Image load error:', url);
+                    resolve(null);
+                };
+                img.src = reader.result;
+            };
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.error('Fetch error:', url, e);
+        return null;
+    }
+}
+
+function getImageFormat(dataUrl) {
+    const mime = dataUrl.split(';')[0].split(':')[1];
+    if (mime === 'image/png') return 'PNG';
+    if (mime === 'image/webp') return 'WEBP';
+    return 'JPEG';
+}
 
 initApp();

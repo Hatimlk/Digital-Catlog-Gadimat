@@ -706,6 +706,10 @@ window.toggleHideProduct = async (id, currentStatus) => {
 document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
 
 async function exportToPDF() {
+    if (window.location.protocol === 'file:') {
+        alert("Attention : L'export PDF ne peut pas inclure les images lorsque le site est ouvert localement (file://) à cause de la sécurité du navigateur. Veuillez utiliser un serveur local (ex: Live Server) pour que les images s'affichent dans le PDF.");
+    }
+
     const exportBtn = document.getElementById('exportPdfBtn');
     exportBtn.disabled = true;
     exportBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-gray-400"></i> Génération...';
@@ -752,18 +756,22 @@ async function exportToPDF() {
             return null;
         };
 
-        // Pre-fetch all images in parallel
+        // Pre-fetch all images sequentially or in small chunks to avoid rate limiting / dropped requests
         const imageCache = {};
         const brandLogoCache = {};
-        await Promise.all(filteredData.map(async (p) => {
-            if (p.surface_image_url) {
-                imageCache[p.id] = await fetchImageAsDataUrl(p.surface_image_url);
-            }
-            const brandLogoUrl = getBrandLogo(p.brand);
-            if (brandLogoUrl && !brandLogoCache[p.brand]) {
-                brandLogoCache[p.brand] = await fetchImageAsDataUrl(brandLogoUrl);
-            }
-        }));
+        const chunkSize = 5;
+        for (let i = 0; i < filteredData.length; i += chunkSize) {
+            const chunk = filteredData.slice(i, i + chunkSize);
+            await Promise.all(chunk.map(async (p) => {
+                if (p.surface_image_url && !imageCache[p.id]) {
+                    imageCache[p.id] = await fetchImageAsDataUrl(p.surface_image_url);
+                }
+                const brandLogoUrl = getBrandLogo(p.brand);
+                if (brandLogoUrl && !brandLogoCache[p.brand]) {
+                    brandLogoCache[p.brand] = await fetchImageAsDataUrl(brandLogoUrl);
+                }
+            }));
+        }
 
         // Fetch Gadimat logo
         let logoDataUrl = null;
@@ -817,7 +825,8 @@ async function exportToPDF() {
                     doc.setDrawColor(229, 231, 235);
                     doc.setLineWidth(0.3);
                     doc.roundedRect(x, y, cardW, cardH, 2, 2, 'S');
-                } catch (_) {
+                } catch (e) {
+                    console.error("Erreur lors de l'ajout de l'image au PDF :", e);
                     drawPlaceholder(x, y);
                 }
             } else {
@@ -951,16 +960,40 @@ async function exportToPDF() {
 
 async function fetchImageAsDataUrl(url) {
     try {
-        const res = await fetch(url);
+        const encodedUrl = encodeURI(url);
+        const res = await fetch(encodedUrl);
         if (!res.ok) return null;
         const blob = await res.blob();
         return new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onloadend = () => resolve(reader.result);
+            reader.onloadend = () => {
+                const img = new Image();
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement('canvas');
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#ffffff';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        resolve(canvas.toDataURL('image/jpeg', 0.85));
+                    } catch (e) {
+                        console.error('Canvas error:', e);
+                        resolve(reader.result); // Fallback to original data URL if canvas fails
+                    }
+                };
+                img.onerror = () => {
+                    console.error('Image load error:', url);
+                    resolve(null);
+                };
+                img.src = reader.result;
+            };
             reader.onerror = () => resolve(null);
             reader.readAsDataURL(blob);
         });
-    } catch {
+    } catch (e) {
+        console.error('Fetch error:', url, e);
         return null;
     }
 }
