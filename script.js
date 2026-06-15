@@ -402,15 +402,9 @@ function App() {
   const activeProduct = products[safeProductIndex] || null;
   const detailProduct = findProductByRoute(detailRoute);
   const detailTypeData = detailRoute ? catalogData.types[detailRoute.type] : null;
-  const previewSurfaceStyle = activeProduct && activeProduct.surfaceImage
-    ? {
-      backgroundImage: `url("${activeProduct.surfaceImage}")`,
-      backgroundSize: "cover",
-      backgroundPosition: "center",
-    }
-    : activeProduct
-      ? { background: activeProduct.background }
-      : { background: typeData.materialBackground };
+  const previewSurfaceStyle = activeProduct
+    ? { background: activeProduct.background }
+    : { background: typeData.materialBackground };
 
   useRevealObserver(activeBrand, activeType, detailRoute);
 
@@ -936,11 +930,21 @@ function App() {
               },
               h(
                 "div",
-                {
-                  className: "product-preview__surface",
-                  style: previewSurfaceStyle,
-                },
-                h("span", { className: "preview-badge" }, activeType),
+              {
+                className: "product-preview__surface",
+                style: previewSurfaceStyle,
+              },
+              activeProduct && activeProduct.surfaceImage
+                ? h("img", {
+                  key: `${activeProduct.brand}-${activeProduct.code}`,
+                  className: "product-preview__surface-img",
+                  src: activeProduct.surfaceImage,
+                  alt: "",
+                  onLoad: (e) => { e.target.style.opacity = "1"; },
+                  onError: (e) => { e.target.style.display = "none"; },
+                })
+                : null,
+              h("span", { className: "preview-badge" }, activeType),
                 activeProduct.previewImage
                   ? hImg({
                     className: "product-preview__hero-image",
@@ -1083,12 +1087,24 @@ function App() {
             : h(
               "aside",
               { className: "product-preview product-preview--empty reveal", ref: showroomCardRef },
-              h("p", { className: "product-preview__brand" }, activeBrand),
-              h("h3", null, `Collection ${activeType}`),
               h(
-                "p",
-                { id: "preview-description" },
-                "Sélectionnez un produit dans la liste pour afficher l'aperçu."
+                "div",
+                { className: "product-preview__empty-inner" },
+                h("div", { className: "product-preview__empty-icon" },
+                  h("svg", { width: "48", height: "48", viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", "stroke-width": "1.5", "stroke-linecap": "round", "stroke-linejoin": "round" },
+                    h("rect", { x: "3", y: "3", width: "7", height: "7", rx: "1" }),
+                    h("rect", { x: "14", y: "3", width: "7", height: "7", rx: "1" }),
+                    h("rect", { x: "3", y: "14", width: "7", height: "7", rx: "1" }),
+                    h("rect", { x: "14", y: "14", width: "7", height: "7", rx: "1" })
+                  )
+                ),
+                h("p", { className: "product-preview__brand" }, activeBrand),
+                h("h3", null, `Collection ${activeType}`),
+                h(
+                  "p",
+                  { id: "preview-description" },
+                  "Sélectionnez un produit dans la liste pour afficher l'aperçu."
+                )
               )
             )
         )

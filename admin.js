@@ -58,6 +58,7 @@ let currentSession = null;
 let currentView = 'table'; // 'table' or 'grid'
 let selectedBrands = new Set();
 let selectedTypes = new Set();
+let searchQuery = '';
 
 let selectedProductIds = new Set();
 const selectAllCheckbox = document.getElementById('selectAllCheckbox');
@@ -162,6 +163,12 @@ function updateTypeFilterLabel() {
         typeFilterBtn.classList.add('border-blue-400', 'bg-blue-50');
     }
 }
+
+const searchInput = document.getElementById('searchInput');
+searchInput.addEventListener('input', (e) => {
+    searchQuery = e.target.value.toLowerCase().trim();
+    renderProducts(products);
+});
 
 viewTableBtn.addEventListener('click', () => switchView('table'));
 viewGridBtn.addEventListener('click', () => switchView('grid'));
@@ -272,7 +279,11 @@ function renderProducts(data) {
     const filteredData = data.filter(p => {
         const brandOk = selectedBrands.size === 0 || selectedBrands.has((p.brand || '').toUpperCase());
         const typeOk = selectedTypes.size === 0 || selectedTypes.has(p.type);
-        return brandOk && typeOk;
+        const searchOk = !searchQuery ||
+            (p.code && p.code.toLowerCase().includes(searchQuery)) ||
+            (p.label && p.label.toLowerCase().includes(searchQuery)) ||
+            (p.brand && p.brand.toLowerCase().includes(searchQuery));
+        return brandOk && typeOk && searchOk;
     });
 
     if (filteredData.length === 0) {
@@ -318,7 +329,12 @@ function renderProducts(data) {
 
         // 1. Table Row
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-gray-50 transition-colors";
+        tr.className = "hover:bg-gray-50 transition-colors cursor-pointer";
+        tr.addEventListener('click', (e) => {
+            if (!e.target.closest('button, input, a')) {
+                editProduct(product.id);
+            }
+        });
         tr.innerHTML = `
             <td class="px-4 py-3 whitespace-nowrap text-center">
                 <input type="checkbox" value="${product.id}" class="row-checkbox w-4 h-4 rounded accent-blue-600 cursor-pointer">
@@ -520,6 +536,10 @@ function closeModal() {
     isHiddenInput.checked = false;
     surfaceImageName.textContent = '';
     previewImageName.textContent = '';
+    ['surfaceImagePreview', 'previewImagePreview'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
 }
 
 openModalBtn.addEventListener('click', () => openModal(false));
@@ -646,6 +666,25 @@ window.editProduct = (id) => {
     epaisseurInput.value = product.epaisseur || '';
     finitionInput.value = product.finition || '';
     isHiddenInput.checked = product.is_hidden || false;
+
+    const surfacePreview = document.getElementById('surfaceImagePreview');
+    const previewPreview = document.getElementById('previewImagePreview');
+
+    if (product.surface_image_url) {
+        surfacePreview.classList.remove('hidden');
+        surfacePreview.style.display = 'flex';
+        surfacePreview.querySelector('img').src = product.surface_image_url;
+    } else {
+        surfacePreview.classList.add('hidden');
+    }
+
+    if (product.preview_image_url) {
+        previewPreview.classList.remove('hidden');
+        previewPreview.style.display = 'flex';
+        previewPreview.querySelector('img').src = product.preview_image_url;
+    } else {
+        previewPreview.classList.add('hidden');
+    }
 
     surfaceImageName.textContent = product.surface_image_url ? 'Image existante conservée (téléchargez pour remplacer)' : '';
     previewImageName.textContent = product.preview_image_url ? 'Image existante conservée (téléchargez pour remplacer)' : '';

@@ -484,6 +484,18 @@ button {
   border-color: rgba(44, 81, 143, 0.55);
   background: var(--panel-strong);
   box-shadow: 0 0 0 3px rgba(44, 81, 143, 0.14), 0 18px 30px rgba(44, 81, 143, 0.14);
+  position: relative;
+}
+
+.product-card.is-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
 }
 
 .type-pill.is-active {
@@ -775,6 +787,22 @@ button {
   min-height: 260px;
 }
 
+.product-preview__empty-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 220px;
+  gap: 8px;
+}
+
+.product-preview__empty-icon {
+  color: var(--accent-soft);
+  margin-bottom: 8px;
+  opacity: 0.5;
+}
+
 .product-preview__surface {
   position: relative;
   border-radius: 26px;
@@ -783,6 +811,17 @@ button {
   overflow: hidden;
   background: linear-gradient(135deg, #2c518f, #537abc, #b2b2b1);
   transition: background 320ms ease;
+}
+
+.product-preview__surface-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 320ms ease;
+  z-index: 0;
 }
 
 .product-preview__hero-image {
@@ -799,6 +838,7 @@ button {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   background:
     radial-gradient(circle at top right, rgba(255, 255, 255, 0.32), transparent 26%),
     linear-gradient(90deg, rgba(255, 255, 255, 0.1), transparent 20%, rgba(0, 0, 0, 0.06) 40%, transparent 58%);
@@ -806,7 +846,7 @@ button {
 
 .preview-badge {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: inline-flex;
   padding: 8px 12px;
   border-radius: 999px;
@@ -1408,21 +1448,17 @@ button {
   }
 
   .product-preview__controls {
-    display: none;
+    display: flex;
   }
 
   .product-preview__nav {
-    width: 46px;
-    min-width: 46px;
-    min-height: 46px;
-    flex: 0 0 46px;
-    padding: 0;
+    display: none;
   }
 
   .product-preview__counter {
-    min-width: 72px;
+    width: 100%;
     text-align: center;
-    font-size: 0.74rem;
+    font-size: 0.78rem;
   }
 
   .product-meta {
