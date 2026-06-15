@@ -622,6 +622,20 @@ button {
   cursor: not-allowed;
 }
 
+.products-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.products-header h2 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2vw, 1.7rem);
+}
+
 .products-layout {
   display: grid;
   grid-template-columns: 0.95fr 1.05fr;

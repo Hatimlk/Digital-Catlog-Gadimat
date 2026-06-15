@@ -714,19 +714,6 @@ function App() {
   return h(
     "div",
     { className: "page-shell" },
-    h(
-      "div",
-      { className: "global-actions", style: { position: "absolute", top: "20px", right: "20px", zIndex: 50 } },
-      h(
-        "button",
-        { 
-          className: "primary-btn", 
-          id: "exportCatalogBtn",
-          onClick: () => exportCatalogToPDF(activeBrand, activeType, products)
-        },
-        "Exporter le catalogue"
-      )
-    ),
     renderGadimatHeader("", ""),
     h(
       "main",
@@ -849,6 +836,20 @@ function App() {
       h(
         "section",
         { className: "section section--products", id: "products" },
+        h(
+          "div",
+          { className: "products-header" },
+          h("h2", null, "Produits"),
+          h(
+            "button",
+            {
+              className: "primary-btn export-btn",
+              id: "exportCatalogBtn",
+              onClick: () => exportCatalogToPDF(activeBrand, activeType, products)
+            },
+            "Exporter le catalogue"
+          )
+        ),
         h(
           "div",
           { className: "products-layout" },
