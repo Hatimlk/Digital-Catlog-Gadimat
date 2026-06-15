@@ -3,14 +3,24 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catalogue Digital Bois</title>
+  <title>Catalogue Digital - Gadimat | Panneaux MDF, High Gloss, Supramat</title>
+  <meta name="description" content="Catalogue digital Gadimat : explorez notre collection de panneaux MDF LAM, HIGH GLOSS et SUPRAMAT pour vos projets d'aménagement intérieur.">
+  <meta name="theme-color" content="#2c518f">
+  <meta property="og:title" content="Catalogue Digital - Gadimat">
+  <meta property="og:description" content="Catalogue interactif de panneaux décoratifs pour l'aménagement intérieur.">
+  <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Droid+Arabic+Kufi:wght@400;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div id="root"></div>
+  <div id="root">
+    <div class="app-loading">
+      <div class="app-loading__spinner"></div>
+      <p class="app-loading__text">Chargement du catalogue...</p>
+    </div>
+  </div>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

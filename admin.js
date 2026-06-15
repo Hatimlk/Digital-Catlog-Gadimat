@@ -64,6 +64,18 @@ const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
 const selectedCountSpan = document.getElementById('selectedCount');
 
+function getBrandLogo(brand) {
+  const b = (brand || '').toUpperCase();
+  const logos = {
+    AGT: 'Assets/Logos/AGT-logo.png',
+    CAMSAN: 'Assets/Logos/Camsan-logo.png',
+    KRONOSPAN: 'Assets/Logos/Kronospan-logo.png',
+    VENNI: 'Assets/Logos/Venni-logo.png',
+    YILDIZ: 'Assets/Logos/Yildiz-logo.png',
+  };
+  return logos[b] || null;
+}
+
 // --- FILTER & VIEW TOGGLE LOGIC ---
 
 // Toggle dropdown open/close
@@ -179,11 +191,6 @@ function switchView(view) {
 
 // --- INITIALIZATION ---
 document.addEventListener('DOMContentLoaded', async () => {
-    if (SUPABASE_URL === 'YOUR_SUPABASE_URL_HERE') {
-        alert("⚠️ Supabase URL is not configured.");
-        return;
-    }
-
     // Check active session
     const { data: { session } } = await supabaseClient.auth.getSession();
     handleSession(session);
@@ -304,15 +311,6 @@ function renderProducts(data) {
         const hideTitle = product.is_hidden ? "Afficher le produit" : "Masquer le produit";
         const hideColor = product.is_hidden ? "text-green-600 hover:text-green-900 hover:bg-green-50" : "text-orange-600 hover:text-orange-900 hover:bg-orange-50";
 
-        const getBrandLogo = (brand) => {
-            const b = (brand || '').toUpperCase();
-            if (b === 'AGT') return 'Assets/Logos/AGT-logo.png';
-            if (b === 'CAMSAN') return 'Assets/Logos/Camsan-logo.png';
-            if (b === 'KRONOSPAN') return 'Assets/Logos/Kronospan-logo.png';
-            if (b === 'VENNI') return 'Assets/Logos/Venni-logo.png';
-            if (b === 'YILDIZ') return 'Assets/Logos/Yildiz-logo.png';
-            return null;
-        };
         const brandLogoUrl = getBrandLogo(product.brand);
         const brandDisplay = brandLogoUrl
             ? `<img src="${brandLogoUrl}" alt="${product.brand}" class="h-12 object-contain w-auto max-w-[140px]">`
@@ -745,16 +743,6 @@ async function exportToPDF() {
         const cardH = imgH + infoH;
         const rowGap = 5;
         const rowsPerPage = 3;
-
-        const getBrandLogo = (brand) => {
-            const b = (brand || '').toUpperCase();
-            if (b === 'AGT') return 'Assets/Logos/AGT-logo.png';
-            if (b === 'CAMSAN') return 'Assets/Logos/Camsan-logo.png';
-            if (b === 'KRONOSPAN') return 'Assets/Logos/Kronospan-logo.png';
-            if (b === 'VENNI') return 'Assets/Logos/Venni-logo.png';
-            if (b === 'YILDIZ') return 'Assets/Logos/Yildiz-logo.png';
-            return null;
-        };
 
         // Pre-fetch all images sequentially or in small chunks to avoid rate limiting / dropped requests
         const imageCache = {};

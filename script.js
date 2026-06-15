@@ -180,7 +180,7 @@ const brandAssetCatalogs = {
       { code: "AH-03", label: "NOY MILANO", surfaceFile: "AH-03 NOY MILANO.png", previewFile: "AH-03-IMG.png" },
       { code: "HL-15", label: "EFES ANTIK BL", surfaceFile: "HL-15 EFES ANTIK BL.png", previewFile: "HL-15-IMG.png" },
       { code: "SL-01", label: "HG WHITE", surfaceFile: "SL-01 HG WHITE.png", previewFile: "SL-01-IMG.png" },
-      { code: "SL-07", label: "MURDUM SL", surfaceFile: "SL-07 MURDUM SL.png", previewFile: "SL-07-IMG.png.png" },
+      { code: "SL-07", label: "MURDUM SL", surfaceFile: "SL-07 MURDUM SL.png", previewFile: "SL-07-IMG.png" },
     ],
   },
   Kronospan: {
@@ -351,7 +351,15 @@ function preloadImage(src) {
   img.src = src;
 }
 
-function useRevealObserver(dependencies) {
+function hImg(props) {
+  const fallback = props.fallback || "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' fill='%23e5e7eb'%3E%3Crect width='200' height='200'/%3E%3Ctext x='50%25' y='50%25' fill='%239ca3af' font-size='14' text-anchor='middle' dy='.3em'%3EImage non disponible%3C/text%3E%3C/svg%3E";
+  return h("img", {
+    ...props,
+    onError: (e) => { e.target.src = fallback; },
+  });
+}
+
+function useRevealObserver(...deps) {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -372,7 +380,7 @@ function useRevealObserver(dependencies) {
     });
 
     return () => observer.disconnect();
-  }, dependencies);
+  }, deps);
 }
 
 function App() {
@@ -404,11 +412,7 @@ function App() {
       ? { background: activeProduct.background }
       : { background: typeData.materialBackground };
 
-  useRevealObserver([
-    activeBrand,
-    activeType,
-    detailRoute ? `${detailRoute.brand}-${detailRoute.type}-${detailRoute.reference}` : "catalog",
-  ]);
+  useRevealObserver(activeBrand, activeType, detailRoute);
 
   useEffect(() => {
     function handleHashChange() {
@@ -689,7 +693,7 @@ function App() {
             { className: "detail-card detail-card--showroom reveal" },
             h("h2", null, "Mise en situation"),
             detailProduct.previewImage
-              ? h("img", {
+              ? hImg({
                 className: "detail-card__image",
                 src: detailProduct.previewImage,
                 alt: `${detailProduct.name} application`,
@@ -876,7 +880,7 @@ function App() {
                     ? h(
                       "div",
                       { className: "product-card__media" },
-                      h("img", {
+                      hImg({
                         className: "product-card__thumb",
                         src: product.surfaceImage,
                         alt: `${product.name} surface`,
@@ -937,7 +941,7 @@ function App() {
                 },
                 h("span", { className: "preview-badge" }, activeType),
                 activeProduct.previewImage
-                  ? h("img", {
+                  ? hImg({
                     className: "product-preview__hero-image",
                     src: activeProduct.previewImage,
                     alt: `${activeProduct.name} preview`,
