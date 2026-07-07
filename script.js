@@ -4,7 +4,6 @@ const productSizeMap = {
   "MDF LAM": "2100 mm x 2800 mm",
   "HIGH GLOSS": "1220 mm x 2800 mm",
   "SUPRAMAT": "1220 mm x 2800 mm",
-  "CONSTRUCTION": "Selon produit",
 };
 function getProductSize(type) {
   return productSizeMap[type] || "1220 mm x 2800 mm";
@@ -15,7 +14,6 @@ const brandLogos = {
   VENNI: "Assets/Logos/Venni-logo.png",
   YILDIZ: "Assets/Logos/Yildiz-logo.png",
   KRONOSPAN: "Assets/Logos/Kronospan-logo.png",
-  "Matériaux de construction": "Assets/Logos/MC-logo.png",
 };
 
 const catalogData = {
@@ -25,7 +23,6 @@ const catalogData = {
     { name: "VENNI", label: "Palette expressive" },
     { name: "YILDIZ", label: "Finitions architecturales" },
     { name: "KRONOSPAN", label: "Surface technique" },
-    { name: "Matériaux de construction", label: "Gros œuvre et Bâtiment" },
   ],
   types: {
     "MDF LAM": {
@@ -67,23 +64,11 @@ const catalogData = {
       materialBackground:
         "linear-gradient(135deg, #47413e 0%, #71675f 30%, #988b80 58%, #60554f 100%)",
     },
-    "CONSTRUCTION": {
-      description: "Une gamme complète de matériaux de construction robustes et fiables pour vos projets de bâtiment.",
-      features: [
-        "Matériaux haute résistance",
-        "Qualité garantie pour le gros œuvre",
-        "Solutions durables",
-      ],
-      materialLabel: "",
-      materialImage: "Assets/Matériaux de construction/Code Produit/Produit-Bois Blanc.jpeg",
-      materialBackground: "linear-gradient(135deg, #d3c4a8 0%, #a89470 50%, #766042 100%)",
-    },
   },
   products: {
     "MDF LAM": [],
     "HIGH GLOSS": [],
     SUPRAMAT: [],
-    "CONSTRUCTION": [],
   },
 };
 
@@ -93,7 +78,6 @@ const brandTypeMap = {
   CAMSAN: ["MDF LAM", "HIGH GLOSS"],
   YILDIZ: ["MDF LAM"],
   VENNI: ["HIGH GLOSS"],
-  "Matériaux de construction": ["CONSTRUCTION"],
 };
 
 const agtAssetCatalog = {
@@ -169,7 +153,6 @@ const brandFolderMap = {
   AGT: { "MDF LAM": "MDF" },
   Kronospan: { "MDF LAM": "MDF" },
   YILDIZ: { "MDF LAM": "MDF" },
-  "Matériaux de construction": { "CONSTRUCTION": "." },
 };
 
 const brandAssetCatalogs = {
@@ -222,15 +205,6 @@ const brandAssetCatalogs = {
     "MDF LAM": [
       { code: "54A", label: "BRAZILIAN WALNUT", surfaceFile: "54A BRAZILIAN WALNUT.png", previewFile: "54A-IMG.png" },
       { code: "O55", label: "ITALIAN WALNUT", surfaceFile: "O55 ITALIAN WALNUT.png", previewFile: "O55-IMG.png" },
-    ],
-  },
-  "Matériaux de construction": {
-    "CONSTRUCTION": [
-      { code: "AFRIFLEX", label: "AFRIFLEX", surfaceFile: "Produit-AFRIFLEX.jpeg", previewFile: "AFRIFLEX.jpeg" },
-      { code: "Bois Blanc", label: "Bois Blanc", surfaceFile: "Produit-Bois Blanc.jpeg", previewFile: "Bois Blanc.jpeg" },
-      { code: "Contreplaqué Bakélisé", label: "Contreplaqué Bakélisé", surfaceFile: "Produit-Contreplaqué Bakélisé.jpeg", previewFile: "Contreplaqué Bakélisé.jpeg" },
-      { code: "POUTRES H20", label: "POUTRES H20", surfaceFile: "Produit-POUTRES H20.jpeg", previewFile: "POUTRES H20.jpeg" },
-      { code: "TRICAPA - 3 PLIS", label: "TRICAPA - 3 PLIS", surfaceFile: "Produit-TRICAPA - 3 PLIS.jpeg", previewFile: "TRICAPA - 3 PLIS.jpeg" },
     ],
   },
 };
