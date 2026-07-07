@@ -66,15 +66,15 @@ const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
 const selectedCountSpan = document.getElementById('selectedCount');
 
 function getBrandLogo(brand) {
-  const b = (brand || '').toUpperCase();
-  const logos = {
-    AGT: 'Assets/Logos/AGT-logo.png',
-    CAMSAN: 'Assets/Logos/Camsan-logo.png',
-    KRONOSPAN: 'Assets/Logos/Kronospan-logo.png',
-    VENNI: 'Assets/Logos/Venni-logo.png',
-    YILDIZ: 'Assets/Logos/Yildiz-logo.png',
-  };
-  return logos[b] || null;
+    const b = (brand || '').toUpperCase();
+    const logos = {
+        AGT: 'Assets/Logos/AGT-logo.png',
+        CAMSAN: 'Assets/Logos/Camsan-logo.png',
+        KRONOSPAN: 'Assets/Logos/Kronospan-logo.png',
+        VENNI: 'Assets/Logos/Venni-logo.png',
+        YILDIZ: 'Assets/Logos/Yildiz-logo.png',
+    };
+    return logos[b] || null;
 }
 
 // --- FILTER & VIEW TOGGLE LOGIC ---
