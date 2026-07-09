@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matériaux de construction - Gadimat</title>
+  <meta name="description" content="Gadimat — Matériaux de construction : contreplaqué bakélisé, tricapa 3 plis, poutres H20, bois blanc et feuilles d'étanchéité AFRIFLEX.">
+  <meta name="theme-color" content="#2c518f">
+  <link rel="icon" type="image/png" href="Assets/Logo-Gadimat01.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.74);
+      color: var(--accent);
+      border: 1px solid rgba(44, 81, 143, 0.12);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--transition);
+      margin-bottom: 20px;
+    }
+    .back-btn:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+    .back-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .materiaux-count {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(44, 81, 143, 0.1);
+      color: var(--accent);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      margin-left: 10px;
+      vertical-align: middle;
+    }
+    .materiaux-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 22px;
+      margin-top: 24px;
+    }
+    .materiau-card {
+      display: flex;
+      flex-direction: column;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(44, 81, 143, 0.08);
+      box-shadow: var(--shadow);
+      transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition);
+    }
+    .materiau-card:hover {
+      transform: translateY(-6px);
+      border-color: var(--accent);
+      box-shadow: 0 28px 64px rgba(33, 58, 103, 0.16);
+    }
+    .materiau-card__media {
+      position: relative;
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 1px solid rgba(44, 81, 143, 0.08);
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(248, 251, 255, 0.9);
+      aspect-ratio: 4 / 3;
+      cursor: zoom-in;
+    }
+    .materiau-card__media:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .materiau-card__media img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 500ms ease;
+    }
+    .materiau-card__media img.materiau-card__img--produit {
+      opacity: 0;
+      transition: opacity 320ms ease, transform 500ms ease;
+    }
+    @media (hover: hover) {
+      .materiau-card:hover .materiau-card__img--produit {
+        opacity: 1;
+      }
+      .materiau-card:hover .materiau-card__media img {
+        transform: scale(1.04);
+      }
+    }
+    .materiau-card__media-badge {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      background: rgba(19, 32, 55, 0.62);
+      color: #fff;
+      font-size: 0.74rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+    .materiau-card__media-badge svg {
+      width: 13px;
+      height: 13px;
+    }
+    .materiau-card h3 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin: 16px 0 4px;
+    }
+    .materiau-card__spec-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-weight: 700;
+      margin: 12px 0 0;
+    }
+    .materiau-card__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .materiau-card__chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(44, 81, 143, 0.1);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .materiau-card__rows {
+      display: grid;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .materiau-card__row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 9px 14px;
+      border-radius: 14px;
+      background: rgba(44, 81, 143, 0.06);
+      font-size: 0.85rem;
+    }
+    .materiau-card__row strong {
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .materiau-card__row span {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    /* ---------- Lightbox ---------- */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 25, 43, 0.9);
+      backdrop-filter: blur(6px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 240ms ease;
+    }
+    .lightbox.is-open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .lightbox__figure {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      max-width: min(920px, 100%);
+      width: 100%;
+      margin: 0;
+    }
+    .lightbox__img {
+      max-width: 100%;
+      max-height: min(72vh, 700px);
+      border-radius: 18px;
+      box-shadow: 0 40px 90px rgba(0, 0, 0, 0.5);
+      object-fit: contain;
+      background: #fff;
+    }
+    .lightbox__caption {
+      color: #fff;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-align: center;
+    }
+    .lightbox__caption small {
+      display: block;
+      margin-top: 4px;
+      color: rgba(255, 255, 255, 0.65);
+      font-weight: 500;
+      font-size: 0.82rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .lightbox__btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .lightbox__btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .lightbox__btn:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+    .lightbox__btn svg {
+      width: 22px;
+      height: 22px;
+    }
+    .lightbox__btn--prev { left: -8px; }
+    .lightbox__btn--next { right: -8px; }
+    .lightbox__close {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      cursor: pointer;
+      transition: background var(--transition);
+    }
+    .lightbox__close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .lightbox__close:focus-visible {
+      outline: 2px solid #fff;
+      outline-offset: 2px;
+    }
+    .lightbox__close svg {
+      width: 20px;
+      height: 20px;
+    }
+    .lightbox__dots {
+      display: flex;
+      gap: 8px;
+    }
+    .lightbox__dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.35);
+      transition: background var(--transition), transform var(--transition);
+    }
+    .lightbox__dots span.is-active {
+      background: #fff;
+      transform: scale(1.25);
+    }
+    body.lightbox-open {
+      overflow: hidden;
+    }
+
+    /* ---------- Entrance animations ---------- */
+    @keyframes mat-fade-up {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .back-btn,
+    .brand-masthead,
+    .section {
+      animation: mat-fade-up 0.5s ease both;
+    }
+    .brand-masthead { animation-delay: 0.06s; }
+    .section { animation-delay: 0.12s; }
+    .materiau-card {
+      animation: mat-fade-up 0.5s ease both;
+    }
+    .materiau-card:nth-child(1) { animation-delay: 0.16s; }
+    .materiau-card:nth-child(2) { animation-delay: 0.22s; }
+    .materiau-card:nth-child(3) { animation-delay: 0.28s; }
+    .materiau-card:nth-child(4) { animation-delay: 0.34s; }
+    .materiau-card:nth-child(5) { animation-delay: 0.4s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .back-btn,
+      .brand-masthead,
+      .section,
+      .materiau-card {
+        animation: none;
+      }
+      .materiau-card,
+      .materiau-card__media img,
+      .lightbox {
+        transition: none;
+      }
+      .materiau-card:hover {
+        transform: none;
+      }
+      .materiau-card:hover .materiau-card__media img {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .materiaux-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .lightbox {
+        padding: 16px;
+      }
+      .lightbox__btn--prev { left: 4px; }
+      .lightbox__btn--next { right: 4px; }
+      .lightbox__btn {
+        width: 42px;
+        height: 42px;
+        background: rgba(255, 255, 255, 0.22);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <a href="index.html" class="back-btn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Retour à l'accueil
+    </a>
+
+    <header class="brand-masthead">
+      <div class="brand-masthead__main">
+        <a href="index.html">
+          <img src="Assets/Logo-Gadimat01.png" alt="Gadimat" class="brand-masthead__logo">
+        </a>
+        <div class="brand-masthead__identity">
+          <div>
+            <p class="brand-masthead__eyebrow">Catalogue Digital</p>
+            <h1 class="brand-masthead__title">Matériaux de construction</h1>
+            <p class="brand-masthead__text">Découvrez notre gamme complète de matériaux de construction pour tous vos projets.</p>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="section">
+      <div class="section-heading">
+        <h2>Nos produits <span class="materiaux-count">5 produits</span></h2>
+        <p>Contreplaqué, coffrage, bois et étanchéité&nbsp;: retrouvez les dimensions disponibles pour chaque produit. Cliquez sur une photo pour l'agrandir.</p>
+      </div>
+
+      <div class="materiaux-grid">
+        <article class="materiau-card">
+          <button type="button" class="materiau-card__media" data-name="Contreplaqué Bakélisé"
+            data-img-showroom="Assets/Matériaux de construction/Showroom/Contreplaqué Bakélisé.jpeg"
+            data-img-produit="Assets/Matériaux de construction/Code Produit/Produit-Contreplaqué Bakélisé.jpeg"
+            aria-label="Agrandir les photos de Contreplaqué Bakélisé">
+            <img src="Assets/Matériaux de construction/Showroom/Contreplaqué Bakélisé.jpeg" alt="Contreplaqué Bakélisé" loading="lazy">
+            <img src="Assets/Matériaux de construction/Code Produit/Produit-Contreplaqué Bakélisé.jpeg" alt="" class="materiau-card__img--produit" loading="lazy" aria-hidden="true">
+            <span class="materiau-card__media-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              2 photos
+            </span>
+          </button>
+          <h3>Contreplaqué Bakélisé</h3>
+          <p class="materiau-card__spec-label">Dimensions</p>
+          <div class="materiau-card__chips">
+            <span class="materiau-card__chip">15 × 1250 × 2500 mm</span>
+            <span class="materiau-card__chip">18 × 1250 × 2500 mm</span>
+            <span class="materiau-card__chip">15 × 1500 × 3000 mm</span>
+            <span class="materiau-card__chip">18 × 1500 × 3000 mm</span>
+          </div>
+        </article>
+
+        <article class="materiau-card">
+          <button type="button" class="materiau-card__media" data-name="TRICAPA - 3 PLIS"
+            data-img-showroom="Assets/Matériaux de construction/Showroom/TRICAPA - 3 PLIS.jpeg"
+            data-img-produit="Assets/Matériaux de construction/Code Produit/Produit-TRICAPA - 3 PLIS.jpeg"
+            aria-label="Agrandir les photos de TRICAPA - 3 PLIS">
+            <img src="Assets/Matériaux de construction/Showroom/TRICAPA - 3 PLIS.jpeg" alt="TRICAPA - 3 PLIS" loading="lazy">
+            <img src="Assets/Matériaux de construction/Code Produit/Produit-TRICAPA - 3 PLIS.jpeg" alt="" class="materiau-card__img--produit" loading="lazy" aria-hidden="true">
+            <span class="materiau-card__media-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              2 photos
+            </span>
+          </button>
+          <h3>TRICAPA - 3 PLIS</h3>
+          <p class="materiau-card__spec-label">Dimensions</p>
+          <div class="materiau-card__chips">
+            <span class="materiau-card__chip">27 × 500 × 2000 mm</span>
+            <span class="materiau-card__chip">27 × 500 × 1000 mm</span>
+          </div>
+        </article>
+
+        <article class="materiau-card">
+          <button type="button" class="materiau-card__media" data-name="POUTRES H20"
+            data-img-showroom="Assets/Matériaux de construction/Showroom/POUTRES H20.jpeg"
+            data-img-produit="Assets/Matériaux de construction/Code Produit/Produit-POUTRES H20.jpeg"
+            aria-label="Agrandir les photos de POUTRES H20">
+            <img src="Assets/Matériaux de construction/Showroom/POUTRES H20.jpeg" alt="Poutres H20" loading="lazy">
+            <img src="Assets/Matériaux de construction/Code Produit/Produit-POUTRES H20.jpeg" alt="" class="materiau-card__img--produit" loading="lazy" aria-hidden="true">
+            <span class="materiau-card__media-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              2 photos
+            </span>
+          </button>
+          <h3>POUTRES H20</h3>
+          <p class="materiau-card__spec-label">Dimensions</p>
+          <div class="materiau-card__chips">
+            <span class="materiau-card__chip">2.90 m</span>
+            <span class="materiau-card__chip">3.90 m</span>
+          </div>
+        </article>
+
+        <article class="materiau-card">
+          <button type="button" class="materiau-card__media" data-name="Bois blanc"
+            data-img-showroom="Assets/Matériaux de construction/Showroom/Bois Blanc.jpeg"
+            data-img-produit="Assets/Matériaux de construction/Code Produit/Produit-Bois Blanc.jpeg"
+            aria-label="Agrandir les photos de Bois blanc">
+            <img src="Assets/Matériaux de construction/Showroom/Bois Blanc.jpeg" alt="Bois blanc" loading="lazy">
+            <img src="Assets/Matériaux de construction/Code Produit/Produit-Bois Blanc.jpeg" alt="" class="materiau-card__img--produit" loading="lazy" aria-hidden="true">
+            <span class="materiau-card__media-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              2 photos
+            </span>
+          </button>
+          <h3>Bois blanc</h3>
+          <p class="materiau-card__spec-label">Épaisseurs &amp; longueurs</p>
+          <div class="materiau-card__rows">
+            <div class="materiau-card__row">
+              <strong>Épaisseur 50 mm</strong>
+              <span>Longueur 4 m / 3 m</span>
+            </div>
+            <div class="materiau-card__row">
+              <strong>Épaisseur 40 mm</strong>
+              <span>Longueur 4 m / 3 m</span>
+            </div>
+          </div>
+        </article>
+
+        <article class="materiau-card">
+          <button type="button" class="materiau-card__media" data-name="AFRIFLEX"
+            data-img-showroom="Assets/Matériaux de construction/Showroom/AFRIFLEX.jpeg"
+            data-img-produit="Assets/Matériaux de construction/Code Produit/Produit-AFRIFLEX.jpeg"
+            aria-label="Agrandir les photos de AFRIFLEX">
+            <img src="Assets/Matériaux de construction/Showroom/AFRIFLEX.jpeg" alt="AFRIFLEX" loading="lazy">
+            <img src="Assets/Matériaux de construction/Code Produit/Produit-AFRIFLEX.jpeg" alt="" class="materiau-card__img--produit" loading="lazy" aria-hidden="true">
+            <span class="materiau-card__media-badge">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                <polyline points="21 15 16 10 5 21"></polyline>
+              </svg>
+              2 photos
+            </span>
+          </button>
+          <h3>AFRIFLEX</h3>
+          <p class="materiau-card__spec-label">Types</p>
+          <div class="materiau-card__chips">
+            <span class="materiau-card__chip">Feuilles d'étanchéité APP</span>
+            <span class="materiau-card__chip">Feuilles d'étanchéité SBS</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Aperçu de la photo" hidden>
+    <button type="button" class="lightbox__close" id="lightboxClose" aria-label="Fermer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+    <figure class="lightbox__figure">
+      <button type="button" class="lightbox__btn lightbox__btn--prev" id="lightboxPrev" aria-label="Photo précédente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+      <img src="" alt="" class="lightbox__img" id="lightboxImg">
+      <button type="button" class="lightbox__btn lightbox__btn--next" id="lightboxNext" aria-label="Photo suivante">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+      <figcaption class="lightbox__caption" id="lightboxCaption"></figcaption>
+      <div class="lightbox__dots" id="lightboxDots" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </div>
+    </figure>
+  </div>
+
+  <script>
+    (function () {
+      var lightbox = document.getElementById('lightbox');
+      var imgEl = document.getElementById('lightboxImg');
+      var captionEl = document.getElementById('lightboxCaption');
+      var dots = document.getElementById('lightboxDots').children;
+      var closeBtn = document.getElementById('lightboxClose');
+      var prevBtn = document.getElementById('lightboxPrev');
+      var nextBtn = document.getElementById('lightboxNext');
+
+      var current = { images: [], labels: [], name: '', index: 0 };
+      var lastTrigger = null;
+
+      function render() {
+        imgEl.src = current.images[current.index];
+        imgEl.alt = current.name + ' — ' + current.labels[current.index];
+        captionEl.innerHTML = '';
+        var title = document.createTextNode(current.name);
+        var small = document.createElement('small');
+        small.textContent = current.labels[current.index] + ' · ' + (current.index + 1) + ' / ' + current.images.length;
+        captionEl.appendChild(title);
+        captionEl.appendChild(small);
+        for (var i = 0; i < dots.length; i++) {
+          dots[i].classList.toggle('is-active', i === current.index);
+        }
+      }
+
+      function open(trigger) {
+        current.images = [trigger.getAttribute('data-img-showroom'), trigger.getAttribute('data-img-produit')];
+        current.labels = ['Showroom', 'Produit'];
+        current.name = trigger.getAttribute('data-name');
+        current.index = 0;
+        lastTrigger = trigger;
+        render();
+        lightbox.hidden = false;
+        requestAnimationFrame(function () {
+          lightbox.classList.add('is-open');
+        });
+        document.body.classList.add('lightbox-open');
+        closeBtn.focus();
+      }
+
+      function close() {
+        lightbox.classList.remove('is-open');
+        document.body.classList.remove('lightbox-open');
+        window.setTimeout(function () {
+          lightbox.hidden = true;
+          if (lastTrigger) lastTrigger.focus();
+        }, 240);
+      }
+
+      function step(delta) {
+        current.index = (current.index + delta + current.images.length) % current.images.length;
+        render();
+      }
+
+      var triggers = document.querySelectorAll('.materiau-card__media');
+      for (var i = 0; i < triggers.length; i++) {
+        triggers[i].addEventListener('click', function () {
+          open(this);
+        });
+      }
+
+      closeBtn.addEventListener('click', close);
+      prevBtn.addEventListener('click', function () { step(-1); });
+      nextBtn.addEventListener('click', function () { step(1); });
+
+      lightbox.addEventListener('click', function (event) {
+        if (event.target === lightbox) close();
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (lightbox.hidden) return;
+        if (event.key === 'Escape') close();
+        if (event.key === 'ArrowLeft') step(-1);
+        if (event.key === 'ArrowRight') step(1);
+      });
+
+      // Swipe navigation on touch screens
+      var touchStartX = null;
+      lightbox.addEventListener('touchstart', function (event) {
+        touchStartX = event.changedTouches[0].clientX;
+      }, { passive: true });
+      lightbox.addEventListener('touchend', function (event) {
+        if (touchStartX === null) return;
+        var delta = event.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(delta) > 48) step(delta < 0 ? 1 : -1);
+        touchStartX = null;
+      }, { passive: true });
+    })();
+  </script>
+</body>
+</html>

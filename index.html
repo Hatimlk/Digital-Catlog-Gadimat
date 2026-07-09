@@ -3,28 +3,334 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Catalogue Digital - Gadimat | Panneaux MDF, High Gloss, Supramat</title>
-  <meta name="description" content="Catalogue digital Gadimat : explorez notre collection de panneaux MDF LAM, HIGH GLOSS et SUPRAMAT pour vos projets d'aménagement intérieur.">
+  <title>Accueil - Gadimat</title>
+  <meta name="description" content="Gadimat — Panneaux, décor et matériaux de construction. Choisissez votre univers pour découvrir nos catalogues.">
   <meta name="theme-color" content="#2c518f">
-  <meta property="og:title" content="Catalogue Digital - Gadimat">
-  <meta property="og:description" content="Catalogue interactif de panneaux décoratifs pour l'aménagement intérieur.">
+  <meta property="og:title" content="Gadimat — Catalogue Digital">
+  <meta property="og:description" content="Panneaux, décor et matériaux de construction. Choisissez votre univers pour découvrir nos catalogues.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="Assets/homepage01.jpg">
+  <link rel="icon" type="image/png" href="Assets/Logo-Gadimat01.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Droid+Arabic+Kufi:wght@400;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <link rel="preload" as="image" href="Assets/homepage01.jpg">
+  <link rel="preload" as="image" href="Assets/homepage02.jpeg">
+  <link rel="prefetch" href="panel.html">
+  <link rel="prefetch" href="materiaux.html">
+  <link rel="prefetch" href="script.js">
+  <style>
+    .home-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      min-height: 100dvh;
+      padding: 40px 20px 36px;
+      text-align: center;
+    }
+    .home-logo {
+      width: min(120px, 32vw);
+      height: auto;
+      margin-bottom: 18px;
+    }
+    .home-eyebrow {
+      margin: 0 0 10px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .home-title {
+      color: var(--accent);
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      line-height: 1.15;
+      margin: 0 0 12px;
+      max-width: 800px;
+      font-weight: 800;
+    }
+    .home-subtitle {
+      margin: 0 0 36px;
+      max-width: 560px;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+    .home-cards {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 1000px;
+      width: 100%;
+    }
+    .home-card {
+      position: relative;
+      flex: 1;
+      min-width: min(300px, 100%);
+      aspect-ratio: 4 / 3;
+      max-height: 400px;
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      text-decoration: none;
+      color: #fff;
+      background: rgba(44, 81, 143, 0.08);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: flex-end;
+      transition:
+        transform var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+    }
+    .home-card:hover,
+    .home-card:focus-visible {
+      transform: translateY(-8px);
+      border-color: var(--accent);
+      box-shadow: 0 32px 72px rgba(33, 58, 103, 0.28);
+    }
+    .home-card:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 3px;
+    }
+    .home-card:active {
+      transform: translateY(-3px);
+    }
+    .home-card-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 600ms ease;
+    }
+    .home-card:hover .home-card-img,
+    .home-card:focus-visible .home-card-img {
+      transform: scale(1.06);
+    }
+    .home-card-overlay {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      padding: 34px 26px 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(180deg, rgba(19, 32, 55, 0) 0%, rgba(19, 32, 55, 0.55) 35%, rgba(19, 32, 55, 0.88) 100%);
+      opacity: 0;
+      transform: translateY(14px);
+      transition: opacity var(--transition), transform var(--transition);
+    }
+    .home-card:hover .home-card-overlay,
+    .home-card:focus-visible .home-card-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .home-card-title {
+      font-size: clamp(1.3rem, 2.3vw, 1.65rem);
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    }
+    .home-card-desc {
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.55;
+      margin: 0;
+      max-width: 360px;
+      font-size: 0.92rem;
+    }
+    .home-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fff;
+      margin-top: 4px;
+    }
+    .home-card-cta svg {
+      width: 17px;
+      height: 17px;
+      transition: transform var(--transition);
+    }
+    .home-card:hover .home-card-cta svg,
+    .home-card:focus-visible .home-card-cta svg {
+      transform: translateX(5px);
+    }
+    .home-footer {
+      margin-top: 44px;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* Touch devices: no hover, keep the text visible over the photo */
+    @media (hover: none) {
+      .home-card-overlay {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Smooth exit when navigating to a catalog */
+    .home-container {
+      transition: opacity 200ms ease, transform 200ms ease;
+    }
+    body.page-leaving .home-container {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+
+    @keyframes home-fade-up {
+      from {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .home-logo,
+    .home-eyebrow,
+    .home-title,
+    .home-subtitle,
+    .home-card,
+    .home-footer {
+      animation: home-fade-up 0.55s ease both;
+    }
+    .home-eyebrow { animation-delay: 0.08s; }
+    .home-title { animation-delay: 0.14s; }
+    .home-subtitle { animation-delay: 0.2s; }
+    .home-card:nth-child(1) { animation-delay: 0.28s; }
+    .home-card:nth-child(2) { animation-delay: 0.38s; }
+    .home-footer { animation-delay: 0.5s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .home-logo,
+      .home-eyebrow,
+      .home-title,
+      .home-subtitle,
+      .home-card,
+      .home-footer {
+        animation: none;
+      }
+      .home-card,
+      .home-card-img,
+      .home-card-overlay,
+      .home-card-cta svg,
+      .home-container {
+        transition: none;
+      }
+      .home-card:hover,
+      .home-card:focus-visible {
+        transform: none;
+      }
+      .home-card:hover .home-card-img,
+      .home-card:focus-visible .home-card-img {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .home-container {
+        padding: 32px 16px 28px;
+        justify-content: flex-start;
+      }
+      .home-logo {
+        margin-bottom: 14px;
+      }
+      .home-subtitle {
+        margin-bottom: 28px;
+      }
+      .home-cards {
+        gap: 18px;
+      }
+      .home-card {
+        aspect-ratio: 16 / 10;
+      }
+      .home-card-overlay {
+        padding: 26px 20px 22px;
+        gap: 8px;
+      }
+      .home-card-desc {
+        display: none;
+      }
+      .home-footer {
+        margin-top: 32px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div id="root">
-    <div class="app-loading">
-      <div class="app-loading__spinner"></div>
-      <p class="app-loading__text">Chargement du catalogue...</p>
+  <main class="home-container">
+    <img src="Assets/Logo-Gadimat01.png" alt="Gadimat" class="home-logo" width="406" height="614" fetchpriority="high">
+    <p class="home-eyebrow">Bienvenue chez Gadimat</p>
+    <h1 class="home-title">Choisissez votre univers</h1>
+    <p class="home-subtitle">Deux catalogues, une seule adresse&nbsp;: explorez nos panneaux décoratifs ou nos matériaux de construction.</p>
+
+    <div class="home-cards">
+      <a href="panel.html" class="home-card" aria-label="Ouvrir le catalogue Panneau et Décor">
+        <img src="Assets/homepage01.jpg" alt="" class="home-card-img" loading="eager">
+        <div class="home-card-overlay">
+          <h2 class="home-card-title">Panneau et Décor</h2>
+          <p class="home-card-desc">Découvrez notre collection complète de panneaux MDF, High Gloss, et Supramat.</p>
+          <span class="home-card-cta">
+            Voir le catalogue
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
+
+      <a href="materiaux.html" class="home-card" aria-label="Ouvrir le catalogue Matériaux de construction">
+        <img src="Assets/homepage02.jpeg" alt="" class="home-card-img" loading="eager">
+        <div class="home-card-overlay">
+          <h2 class="home-card-title">Matériaux de construction</h2>
+          <p class="home-card-desc">Parcourez notre large gamme de matériaux de construction pour tous vos chantiers.</p>
+          <span class="home-card-cta">
+            Voir le catalogue
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </span>
+        </div>
+      </a>
     </div>
-  </div>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="script.js"></script>
+
+    <p class="home-footer">© 2026 Gadimat — Tous droits réservés</p>
+  </main>
+
+  <script>
+    (function () {
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var cards = document.querySelectorAll('.home-card');
+
+      for (var i = 0; i < cards.length; i++) {
+        cards[i].addEventListener('click', function (event) {
+          if (reduceMotion || event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+          event.preventDefault();
+          var href = this.getAttribute('href');
+          document.body.classList.add('page-leaving');
+          window.setTimeout(function () {
+            window.location.href = href;
+          }, 180);
+        });
+      }
+
+      // Restore the page when coming back via the browser's back button (bfcache)
+      window.addEventListener('pageshow', function () {
+        document.body.classList.remove('page-leaving');
+      });
+    })();
+  </script>
 </body>
 </html>
