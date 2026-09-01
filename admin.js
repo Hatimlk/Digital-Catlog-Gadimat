@@ -987,7 +987,12 @@ async function exportToPDF() {
 
 async function fetchImageAsDataUrl(url) {
     try {
-        const encodedUrl = encodeURI(url);
+        let encodedUrl;
+        try {
+            encodedUrl = encodeURI(decodeURI(url));
+        } catch (e) {
+            encodedUrl = encodeURI(url);
+        }
         const res = await fetch(encodedUrl);
         if (!res.ok) return null;
         const blob = await res.blob();
